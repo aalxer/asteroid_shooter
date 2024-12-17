@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import {FBXLoader, MTLLoader, OBJLoader} from "three/addons";
-import {SpotLight} from "three";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -39,7 +38,10 @@ const bgPlaneTextureMap = textureLoader.load('../assets/textures/starsTexture.jp
 
 bgPlaneTextureMap.wrapS = THREE.RepeatWrapping;
 bgPlaneTextureMap.wrapT = THREE.RepeatWrapping;
-//bgPlaneTextureMap.repeat.set(1, 1);
+bgPlaneTextureMap.repeat.set(
+    fieldWidth / 300,
+    fieldHeight / 300
+);
 bgPlaneTextureMap.minFilter = THREE.LinearFilter;
 bgPlaneTextureMap.magFilter = THREE.LinearFilter;
 
@@ -51,11 +53,12 @@ const bgPlaneGeometry = new THREE.PlaneGeometry(
 const bgPlaneMaterial = new THREE.MeshStandardMaterial({
     map: bgPlaneTextureMap,
     side: THREE.DoubleSide,
+    //color: 0x999999
 });
 
 const backgroundPlane = new THREE.Mesh(bgPlaneGeometry, bgPlaneMaterial);
-backgroundPlane.renderOrder = 0;
 backgroundPlane.receiveShadow = true;
+
 scene.add(backgroundPlane);
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -67,12 +70,11 @@ scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 30);
 directionalLight.position.set(10, 10, 10);
-directionalLight.castShadow = true;
 scene.add(directionalLight);
 
 const pointLight = new THREE.PointLight(0xffffff, 5, 100);
 pointLight.position.set(0, 0, 0);
-pointLight.castShadow = true;
+pointLight.layers.disable(0);
 scene.add(pointLight);
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -96,17 +98,21 @@ spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
         const yPos = (-fieldHeight / 2) + 100;
         spaceship.position.set(0, yPos, 150);
         spaceship.scale.set(1, 1, 1);
-        spaceship.rotation.set(0 , 0, 0)
+        spaceship.rotation.set(0, 0, 0)
         spaceship.renderOrder = 1;
         spaceship.traverse((child) => {
             if (child.isMesh) {
                 child.castShadow = true;
-                child.receiveShadow = true;
             }
         });
 
+        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Lichtquelle für Segment-3:
-        const spotLight = new THREE.SpotLight(0xffffff, 2, 200);
+        const spotLight = new THREE.SpotLight(
+            0xffffff,
+            2,
+            200
+        );
         spotLight.castShadow = true;
         // Spotlight an die Seg3-Spitze setzen (y-achse):
         spotLight.position.set(0, yPos, 150);
@@ -122,8 +128,8 @@ spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
         // ZUM TESTEN, Light-Helper für die Lichtquelle von Seg3:
         const spotLightHelper = new THREE.CameraHelper(spotLight.shadow.camera);
         scene.add(spotLightHelper);
+        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        spaceship.castShadow = true;
         scene.add(spaceship);
         spaceshipObj = spaceship;
 
@@ -144,7 +150,7 @@ spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
 // ---------------------------------------------------------------------------------------------------------------------
 
 let coins = [];
-let score = 0 ;
+let score = 0;
 
 function updateScore() {
     console.log(score);
@@ -226,17 +232,45 @@ let missileObjects = [];
 
 function createLaser(missile) {
 
-    const laserGeometry = new THREE.CylinderGeometry(.5, .5, fieldHeight, 5);
+    const laserGeometry = new THREE.CylinderGeometry(
+        .5,
+        .5,
+        fieldHeight,
+        5
+    );
     const laserMaterial = new THREE.MeshBasicMaterial({
         color: 0xff4500,
+        emissive: 0xff4500,
         transparent: true,
         opacity: 0.8,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
     });
 
     const laser = new THREE.Mesh(laserGeometry, laserMaterial);
-    laser.position.set(0, fieldHeight / 2 , -1);
+    laser.position.set(0, fieldHeight / 2, -1);
+
+    startLaserBlink(laserMaterial);
 
     return laser;
+}
+
+function startLaserBlink(laserMaterial) {
+
+    const blinkSpeed = 0.02;
+    let opacity = laserMaterial.opacity;
+    let direction = -1;
+
+    function animateOpacity() {
+        opacity += direction * blinkSpeed;
+        if (opacity <= 0.2 || opacity >= 0.8) {
+            direction *= -1;
+        }
+        laserMaterial.opacity = opacity;
+    }
+
+    setInterval(animateOpacity, 16);
 }
 
 /**
@@ -261,10 +295,10 @@ function createMissilesObject() {
             );
             missile.scale.set(23, 23, 23);
             missile.rotation.z = Math.PI;
+            missile.castShadow = true;
             missile.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
-                    child.receiveShadow = true;
                 }
             });
 
@@ -274,8 +308,8 @@ function createMissilesObject() {
             scene.add(missile);
             missileObjects.push(missile);
 
-            });
         });
+    });
 }
 
 /**
@@ -303,7 +337,7 @@ function animateMissiles() {
 function startMissilesCreation() {
     setInterval(() => {
         createMissilesObject();
-    }, Math.random() * 3000 + 5000);
+    }, Math.random() * 6000 + 12000);
 }
 
 startMissilesCreation();
@@ -353,7 +387,7 @@ const speed = 0.001;
 
 function animateBackground() {
 
-    bgPlaneTextureMap.offset.y -= speed;
+    bgPlaneTextureMap.offset.y += speed;
 
     if (bgPlaneTextureMap.offset.x <= -1) {
         bgPlaneTextureMap.offset.x = 0;

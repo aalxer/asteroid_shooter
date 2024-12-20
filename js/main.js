@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import {FBXLoader, MTLLoader, OBJLoader} from "three/addons";
+import * as dat from "three/addons/libs/lil-gui.module.min";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -25,7 +26,7 @@ const camera = new THREE.OrthographicCamera(
     0.1,
     1000
 );
-camera.position.set(0, 0, 200);
+camera.position.set(0, 0, 800);
 
 // create Plane für den Hintergrund:
 const textureLoader = new THREE.TextureLoader();
@@ -53,12 +54,12 @@ const bgPlaneGeometry = new THREE.PlaneGeometry(
 const bgPlaneMaterial = new THREE.MeshStandardMaterial({
     map: bgPlaneTextureMap,
     side: THREE.DoubleSide,
-    //color: 0x999999
+    color: 0x6a6a6a
 });
 
 const backgroundPlane = new THREE.Mesh(bgPlaneGeometry, bgPlaneMaterial);
 backgroundPlane.receiveShadow = true;
-
+backgroundPlane.position.z = -50;
 scene.add(backgroundPlane);
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -68,14 +69,35 @@ scene.add(backgroundPlane);
 const ambientLight = new THREE.AmbientLight(0xffffff, 5);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 30);
-directionalLight.position.set(10, 10, 10);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 10);
+directionalLight.position.set(65,240, 385);
+directionalLight.target = backgroundPlane;
+directionalLight.castShadow = true;
+directionalLight.shadow.camera.left = -fieldWidth / 2;
+directionalLight.shadow.camera.right = fieldWidth / 2;
+directionalLight.shadow.camera.top = fieldHeight / 2;
+directionalLight.shadow.camera.bottom = -fieldHeight / 2;
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
+directionalLight.shadow.camera.near = 0.1;
+directionalLight.shadow.camera.far = 1500;
 scene.add(directionalLight);
+scene.add(directionalLight.target);
 
-const pointLight = new THREE.PointLight(0xffffff, 5, 100);
-pointLight.position.set(0, 0, 0);
-pointLight.layers.disable(0);
-scene.add(pointLight);
+const spotLight = new THREE.SpotLight(0xffffff, 20, 300);
+spotLight.position.set(50, 100, 150);
+spotLight.castShadow = true;
+scene.add(spotLight);
+spotLight.target.position.set(0, 0, 0);
+scene.add(spotLight.target);
+
+// Helpers:
+const spotLightHelper = new THREE.SpotLightHelper(spotLight)
+scene.add(spotLightHelper)
+const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 30)
+scene.add(directionalLightHelper);
+const axesHelper = new THREE.AxesHelper(300);
+scene.add(axesHelper);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // SPACESHIP
@@ -97,9 +119,8 @@ spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
 
         const yPos = (-fieldHeight / 2) + 100;
         spaceship.position.set(0, yPos, 150);
-        spaceship.scale.set(1, 1, 1);
-        spaceship.rotation.set(0, 0, 0)
-        spaceship.renderOrder = 1;
+        spaceship.scale.set(.70, .70, .70);
+        spaceship.rotation.set(100 , 0, 0)
         spaceship.traverse((child) => {
             if (child.isMesh) {
                 child.castShadow = true;
@@ -107,27 +128,38 @@ spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
         });
 
         // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        // Lichtquelle für Segment-3:
+        // Lichtquelle Spaceship
+        // Cube
+        /*
+        const cubeGeometry = new THREE.BoxGeometry(80   , 80, 80);
+        const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.position.set(0, 50, 0);
+        cube.castShadow = true; // Der Würfel wirft Schatten
+        scene.add(cube);
+
+// Spotlight (einfaches Setup ohne Ziel, nur strahlen lassen)
+        const spotlight = new THREE.SpotLight(0xffffff, 1);  // Weißes Licht mit Intensität 1
+        spotlight.position.set(0, 100, 0);  // Position des Spotlights
+        spotlight.castShadow = true;  // Spotlight wirft Schatten
+        scene.add(spotlight);
+
+// Spotlight-Helper (optional, um das Licht zu visualisieren)
+        const spotlightHelper = new THREE.SpotLightHelper(spotlight);
+        scene.add(spotlightHelper);
+         */
         const spotLight = new THREE.SpotLight(
             0xffffff,
-            2,
+            10,
             200
         );
         spotLight.castShadow = true;
-        // Spotlight an die Seg3-Spitze setzen (y-achse):
-        spotLight.position.set(0, yPos, 150);
-        // Spotlight als ChildElement von Seg3 (für automatische Transformation):
+        spotLight.position.set(0, 0, 0);
         spaceship.add(spotLight);
 
-        // Spotlight ausrichten:
-        const spotLightTarget = new THREE.Object3D();
-        spotLightTarget.position.set(0, 0, 200);
-        spaceship.add(spotLightTarget);
-        spotLight.target = spotLightTarget;
+       const spotLightHelper = new THREE.CameraHelper(spotLight.shadow.camera);
+       //scene.add(spotLightHelper);
 
-        // ZUM TESTEN, Light-Helper für die Lichtquelle von Seg3:
-        const spotLightHelper = new THREE.CameraHelper(spotLight.shadow.camera);
-        scene.add(spotLightHelper);
         // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         scene.add(spaceship);
@@ -144,6 +176,67 @@ spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
         });
     });
 })
+
+// ---------------------------------------------------------------------------------------------------------------------
+// ENEMIES
+// ---------------------------------------------------------------------------------------------------------------------
+
+const ememyLoader = new OBJLoader();
+const enemyMtlLoader = new MTLLoader();
+const bladeSize = 45;
+let enemiesObjects = [];
+
+function createEnemyObject() {
+    enemyMtlLoader.load('../assets/Blade.mtl', (materials) => {
+
+        materials.preload();
+        ememyLoader.setMaterials(materials);
+
+        ememyLoader.load('../assets/Blade.obj', (blade) => {
+
+            const yPos = (-fieldHeight / 2) + 100;
+            blade.position.set(
+                Math.random() * fieldWidth - fieldWidth / 2,
+                fieldHeight,
+                0
+            );
+            blade.scale.set(bladeSize, bladeSize, bladeSize);
+            blade.rotation.set(-100 , 0, 0)
+            blade.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                }
+            });
+
+            scene.add(blade);
+            enemiesObjects.push(blade);
+        });
+    })
+}
+
+function animateEnemiesObjects() {
+    for (let i = 0; i < enemiesObjects.length; i++) {
+        const obj = enemiesObjects[i];
+
+        if (obj.position.y > -fieldHeight / 2) {
+            obj.position.y -= .5;
+
+            obj.rotation.y += 0.01;
+        } else {
+            scene.remove(obj);
+            enemiesObjects.splice(i, 1);
+            i--;
+        }
+    }
+}
+
+function startEnemiesCreation() {
+    setInterval(() => {
+        createEnemyObject();
+    }, 8000);
+}
+
+startEnemiesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
 // COINS
@@ -165,9 +258,6 @@ function checkCollision(obj1, obj2) {
     return box1.intersectsBox(box2);
 }
 
-/**
- * Erzeugt ein einfaches 3D-Objekt (Cube) mit einer zufälligen Größe und Farbe:
- */
 function createCoinsObject() {
 
     const fbxLoader = new FBXLoader();
@@ -175,26 +265,22 @@ function createCoinsObject() {
         coin.position.set(
             Math.random() * fieldWidth - fieldWidth / 2,
             fieldHeight / 2,
-            50
+            150
         );
         coin.scale.set(0.2, 0.2, 0.2);
-
         scene.add(coin);
         coins.push(coin);
     });
 }
 
-/**
- * Iteriert über alle Objekte im fallingObjects Array und
- * bewegt jedes Objekt nach unten (reduziert die y-Position),
- * wenn ein Objekt den Boden erreicht, wird es aus der Szene entfernt
- */
 function animateCoinsObjects() {
     for (let i = 0; i < coins.length; i++) {
         const obj = coins[i];
 
         if (obj.position.y > -fieldHeight / 2) {
-            obj.position.y -= 2; // Geschwindigkeit des Fallens
+            obj.position.y -= 2;
+            obj.rotation.x += 0.01;
+            obj.rotation.y += 0.01;
         } else {
             scene.remove(obj);
             coins.splice(i, 1);
@@ -212,10 +298,6 @@ function animateCoinsObjects() {
     }
 }
 
-/**
- * Startet ein Intervall, das zufällig neue Objekte erstellt.
- * Die Intervalle sind zufällig und reichen von 1 bis 4 Sekunden
- */
 function startCoinsCreation() {
     setInterval(() => {
         createCoinsObject();
@@ -273,9 +355,6 @@ function startLaserBlink(laserMaterial) {
     setInterval(animateOpacity, 16);
 }
 
-/**
- * lädt Missile Objekt aus .obj und .mtl und setzt einen Random-XWert
- */
 function createMissilesObject() {
 
     const missilesObjectsLoader = new OBJLoader();
@@ -291,14 +370,14 @@ function createMissilesObject() {
             missile.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
                 fieldHeight / 1.4,
-                100
+                150
             );
             missile.scale.set(23, 23, 23);
             missile.rotation.z = Math.PI;
-            missile.castShadow = true;
             missile.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
+                    child.receiveShadow = true;
                 }
             });
 
@@ -312,10 +391,6 @@ function createMissilesObject() {
     });
 }
 
-/**
- * Iteriert über alle Objekte im Array und
- * bewegt jedes Objekt nach unten (reduziert die y-Position)
- */
 function animateMissiles() {
     for (let i = 0; i < missileObjects.length; i++) {
         const obj = missileObjects[i];
@@ -331,13 +406,10 @@ function animateMissiles() {
     }
 }
 
-/**
- * Startet ein Intervall, das zufällig neue Objekte erstellt
- */
 function startMissilesCreation() {
     setInterval(() => {
         createMissilesObject();
-    }, Math.random() * 6000 + 12000);
+    }, Math.random() * 10000 + 16000);
 }
 
 startMissilesCreation();
@@ -374,10 +446,14 @@ function mouseEventHandler(event, target) {
 function draw() {
 
     if (resizeCanvasToWindow()) {
-        renderer.render(scene, camera);
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
     }
+    animateEnemiesObjects();
     animateCoinsObjects();
-    animateMissiles()
+    animateMissiles();
+    spotLightHelper.update();
     requestAnimationFrame(draw);
 }
 
@@ -400,7 +476,7 @@ function animateBackground() {
 animateBackground();
 
 // ---------------------------------------------------------------------------------------------------------------------
-// HELPERS
+// HELPER FUNCTIONS
 // ---------------------------------------------------------------------------------------------------------------------
 
 function constrainObjectPosition(object) {
@@ -420,12 +496,33 @@ function constrainObjectPosition(object) {
 }
 
 function resizeCanvasToWindow() {
+
+    const canvas = renderer.domElement;
     const width = window.innerWidth;
     const height = window.innerHeight;
-
-    if (renderer.domElement.width !== width || renderer.domElement.height !== height) {
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
         renderer.setSize(width, height, false);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
     }
+    return needResize;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// GUI CONTROLLER
+// ---------------------------------------------------------------------------------------------------------------------
+
+const gui = new dat.GUI();
+const directionalLightFolder = gui.addFolder('Directional Light');
+const spotLightFolder = gui.addFolder('Spotlight');
+const ambientLightFolder = gui.addFolder('Ambient Light');
+
+directionalLightFolder.add(directionalLight.position, 'x', -500, 800);
+directionalLightFolder.add(directionalLight.position, 'y', -500, 800);
+directionalLightFolder.add(directionalLight.position, 'z', -500, 800);
+directionalLightFolder.add(directionalLight, 'intensity', 0, 50);
+spotLightFolder.add(spotLight.position, 'x', -500, 800);
+spotLightFolder.add(spotLight.position, 'y', -500, 800);
+spotLightFolder.add(spotLight.position, 'z', -500, 800);
+spotLightFolder.add(spotLight, 'intensity', 0, 50);
+ambientLightFolder.add(ambientLight, 'intensity', 0, 50);
+directionalLightFolder.open();

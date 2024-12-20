@@ -69,8 +69,8 @@ scene.add(backgroundPlane);
 const ambientLight = new THREE.AmbientLight(0xffffff, 5);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 10);
-directionalLight.position.set(65,240, 385);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+directionalLight.position.set(65,240, 800);
 directionalLight.target = backgroundPlane;
 directionalLight.castShadow = true;
 directionalLight.shadow.camera.left = -fieldWidth / 2;
@@ -106,21 +106,22 @@ scene.add(axesHelper);
 let spaceshipObj = null;
 const spaceshipLoader = new OBJLoader();
 const spaceshipMtlLoader = new MTLLoader();
+const spaceshipSize = .5;
 
-spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
+spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
     console.log("Design (.mtl) for Spaceship was loaded successfully !")
     materials.preload();
     spaceshipLoader.setMaterials(materials);
 
-    spaceshipLoader.load('../assets/Spaceship.obj', (spaceship) => {
+    spaceshipLoader.load('../assets/RaiderStarship.obj', (spaceship) => {
 
         console.log("Spaceship was loaded successfully !")
 
-        const yPos = (-fieldHeight / 2) + 100;
+        const yPos = (-fieldHeight / 2) + 50;
         spaceship.position.set(0, yPos, 150);
-        spaceship.scale.set(.70, .70, .70);
-        spaceship.rotation.set(100 , 0, 0)
+        spaceship.scale.set(spaceshipSize, spaceshipSize, spaceshipSize);
+        spaceship.rotation.set(0.3, 3.13, 0);
         spaceship.traverse((child) => {
             if (child.isMesh) {
                 child.castShadow = true;
@@ -138,13 +139,11 @@ spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
         cube.castShadow = true; // Der Würfel wirft Schatten
         scene.add(cube);
 
-// Spotlight (einfaches Setup ohne Ziel, nur strahlen lassen)
         const spotlight = new THREE.SpotLight(0xffffff, 1);  // Weißes Licht mit Intensität 1
         spotlight.position.set(0, 100, 0);  // Position des Spotlights
         spotlight.castShadow = true;  // Spotlight wirft Schatten
         scene.add(spotlight);
 
-// Spotlight-Helper (optional, um das Licht zu visualisieren)
         const spotlightHelper = new THREE.SpotLightHelper(spotlight);
         scene.add(spotlightHelper);
          */
@@ -174,6 +173,11 @@ spaceshipMtlLoader.load('../assets/Spaceship.mtl', (materials) => {
         document.addEventListener('keydown', (event) => {
             keyboardEventHandler(event, spaceship);
         });
+
+        // GUI Controller:
+        spaceshipFolder.add(spaceshipObj.rotation, 'x', 0, Math.PI * 2).name('Rotate X');
+        spaceshipFolder.add(spaceshipObj.rotation, 'y', 0, Math.PI * 2).name('Rotate Y');
+        spaceshipFolder.add(spaceshipObj.rotation, 'z', 0, Math.PI * 2).name('Rotate Z');
     });
 })
 
@@ -412,6 +416,38 @@ function startMissilesCreation() {
     }, Math.random() * 10000 + 16000);
 }
 
+function createFireObject() {
+    const missilesObjectsLoader = new OBJLoader();
+    const missilesObjectsMtlLoader = new MTLLoader();
+
+    missilesObjectsMtlLoader.load('../assets/Missile.mtl', (material) => {
+
+        material.preload();
+        missilesObjectsLoader.setMaterials(material);
+
+        missilesObjectsLoader.load('../assets/Missile.obj', (missile) => {
+
+            missile.position.set(
+                Math.random() * fieldWidth - fieldWidth / 2,
+                fieldHeight / 1.4,
+                150
+            );
+            missile.scale.set(23, 23, 23);
+            missile.rotation.z = Math.PI;
+            missile.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            scene.add(missile);
+            missileObjects.push(missile);
+
+        });
+    });
+}
+
 startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -512,6 +548,7 @@ function resizeCanvasToWindow() {
 // ---------------------------------------------------------------------------------------------------------------------
 
 const gui = new dat.GUI();
+const spaceshipFolder = gui.addFolder('Spaceship');
 const directionalLightFolder = gui.addFolder('Directional Light');
 const spotLightFolder = gui.addFolder('Spotlight');
 const ambientLightFolder = gui.addFolder('Ambient Light');
@@ -525,4 +562,5 @@ spotLightFolder.add(spotLight.position, 'y', -500, 800);
 spotLightFolder.add(spotLight.position, 'z', -500, 800);
 spotLightFolder.add(spotLight, 'intensity', 0, 50);
 ambientLightFolder.add(ambientLight, 'intensity', 0, 50);
-directionalLightFolder.open();
+
+spaceshipFolder.open();

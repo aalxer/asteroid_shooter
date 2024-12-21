@@ -107,6 +107,7 @@ let spaceshipObj = null;
 const spaceshipLoader = new OBJLoader();
 const spaceshipMtlLoader = new MTLLoader();
 const spaceshipSize = .5;
+let spaceshipControlsEnabled = false;
 
 spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
@@ -162,6 +163,7 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
         // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         scene.add(spaceship);
+        spaceshipControlsEnabled = true;
         spaceshipObj = spaceship;
 
         // Maus Steuerung:
@@ -226,8 +228,14 @@ function createEnemyObject() {
 }
 
 function animateEnemiesObjects() {
+
     for (let i = 0; i < enemiesObjects.length; i++) {
+
         const obj = enemiesObjects[i];
+
+        if (!isGameOver && checkCollision(spaceshipObj, obj)) {
+            handleGameOver();
+        }
 
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= .5;
@@ -404,6 +412,7 @@ function createMissilesObject() {
 }
 
 function animateMissiles() {
+
     for (let i = 0; i < missileObjects.length; i++) {
         const obj = missileObjects[i];
 
@@ -414,7 +423,6 @@ function animateMissiles() {
             missileObjects.splice(i, 1);
             i--;
         }
-
     }
 }
 
@@ -452,7 +460,13 @@ startMissilesCreation();
 // GAME LOGIC
 // ---------------------------------------------------------------------------------------------------------------------
 
+let isGameOver = false;
+let enemyShootList = [];
+
 function moveUsingKeyboard(event, target) {
+
+    if (!spaceshipControlsEnabled) return
+
     const moveSpeed = 10;
     if (target) {
         if (event.key === 'ArrowLeft') {
@@ -465,6 +479,9 @@ function moveUsingKeyboard(event, target) {
 }
 
 function moveUsingMaus(event, target) {
+
+    if (!spaceshipControlsEnabled) return
+
     let mouseX = 0;
     mouseX = (event.clientX / window.innerWidth) * 2 - 1;
     if (target) {
@@ -481,6 +498,7 @@ function shoot(spaceship) {
     scene.add(shot);
 
     const animateShot = () => {
+
         shot.position.y += 5;
         if (shot.position.y < 1000) {
             requestAnimationFrame(animateShot);
@@ -500,9 +518,16 @@ function enemyShoot(blade) {
     const startShootPosition = (fieldHeight / 2) - 50;
     shot.position.set(blade.position.x, blade.position.y, blade.position.z);
     scene.add(shot);
+    enemyShootList.push(shot);
 
     const animateShot = () => {
+
+        if (!isGameOver && checkCollision(spaceshipObj, shot)) {
+            handleGameOver();
+        }
+
         shot.position.y -= 5;
+
         if (shot.position.y > (-fieldHeight / 2) && blade.position.y < startShootPosition) {
             requestAnimationFrame(animateShot);
         }
@@ -512,6 +537,20 @@ function enemyShoot(blade) {
     };
 
     animateShot();
+}
+
+function handleGameOver() {
+
+    if (isGameOver) return
+
+    isGameOver = true;
+    spaceshipControlsEnabled = false;
+
+    setTimeout(() => {
+        scene.remove(spaceshipObj);
+    }, 5000);
+
+    console.log("Game Over");
 }
 
 function constrainObjectPosition(object) {

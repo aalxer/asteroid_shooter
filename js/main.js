@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import {FBXLoader, MTLLoader, OBJLoader} from "three/addons";
 import * as dat from "three/addons/libs/lil-gui.module.min";
+import {Color} from "three";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -53,8 +54,7 @@ const bgPlaneGeometry = new THREE.PlaneGeometry(
 
 const bgPlaneMaterial = new THREE.MeshStandardMaterial({
     map: bgPlaneTextureMap,
-    side: THREE.DoubleSide,
-    color: 0x6a6a6a
+    side: THREE.DoubleSide
 });
 
 const backgroundPlane = new THREE.Mesh(bgPlaneGeometry, bgPlaneMaterial);
@@ -93,11 +93,11 @@ scene.add(spotLight.target);
 
 // Helpers:
 const spotLightHelper = new THREE.SpotLightHelper(spotLight)
-scene.add(spotLightHelper)
+//scene.add(spotLightHelper)
 const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 30)
-scene.add(directionalLightHelper);
+//scene.add(directionalLightHelper);
 const axesHelper = new THREE.AxesHelper(300);
-scene.add(axesHelper);
+//scene.add(axesHelper);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // SPACESHIP
@@ -166,12 +166,16 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
         // Maus Steuerung:
         document.addEventListener('mousemove', (event) => {
-            mouseEventHandler(event, spaceship);
+            moveUsingMaus(event, spaceship);
         });
 
         // Tastatur Steuerung:
         document.addEventListener('keydown', (event) => {
-            keyboardEventHandler(event, spaceship);
+            moveUsingKeyboard(event, spaceship);
+        });
+
+        document.addEventListener('click', (event) => {
+            shoot(spaceship);
         });
 
         // GUI Controller:
@@ -198,7 +202,6 @@ function createEnemyObject() {
 
         ememyLoader.load('../assets/Blade.obj', (blade) => {
 
-            const yPos = (-fieldHeight / 2) + 100;
             blade.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
                 fieldHeight,
@@ -214,6 +217,10 @@ function createEnemyObject() {
 
             scene.add(blade);
             enemiesObjects.push(blade);
+
+            setInterval(() => {
+                enemyShoot(blade);
+            }, 5000);
         });
     })
 }
@@ -224,7 +231,6 @@ function animateEnemiesObjects() {
 
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= .5;
-
             obj.rotation.y += 0.01;
         } else {
             scene.remove(obj);
@@ -253,27 +259,28 @@ function updateScore() {
     console.log(score);
 }
 
-function checkCollision(obj1, obj2) {
-    // Erstelle eine BoundingBox für beide Objekte
-    const box1 = new THREE.Box3().setFromObject(obj1);
-    const box2 = new THREE.Box3().setFromObject(obj2);
-
-    // Überprüfe, ob die Boxen sich überschneiden (Kollision)
-    return box1.intersectsBox(box2);
-}
-
 function createCoinsObject() {
 
-    const fbxLoader = new FBXLoader();
-    fbxLoader.load('../assets/Dollar_Coin.fbx', (coin) => {
-        coin.position.set(
-            Math.random() * fieldWidth - fieldWidth / 2,
-            fieldHeight / 2,
-            150
-        );
-        coin.scale.set(0.2, 0.2, 0.2);
-        scene.add(coin);
-        coins.push(coin);
+    const coinsObjectsLoader = new OBJLoader();
+    const coinsObjectsMtlLoader = new MTLLoader();
+
+    coinsObjectsMtlLoader.load('../assets/Coin.mtl', (material) => {
+
+        material.preload();
+        coinsObjectsLoader.setMaterials(material);
+
+        coinsObjectsLoader.load('../assets/Coin.obj', (coin) => {
+
+            coin.position.set(
+                Math.random() * fieldWidth - fieldWidth / 2,
+                fieldHeight / 2,
+                150
+            );
+            coin.scale.set(15,15,15);
+            scene.add(coin);
+            coins.push(coin);
+
+        });
     });
 }
 
@@ -283,8 +290,9 @@ function animateCoinsObjects() {
 
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= 2;
-            obj.rotation.x += 0.01;
-            obj.rotation.y += 0.01;
+            obj.rotation.x += 0.05;
+            obj.rotation.y += 0.05;
+            obj.rotation.z += 0.05;
         } else {
             scene.remove(obj);
             coins.splice(i, 1);
@@ -295,9 +303,9 @@ function animateCoinsObjects() {
             // Objekt entfernen und Score erhöhen
             scene.remove(obj);
             coins.splice(i, 1);
-            i--; // Index anpassen
-            score++; // Erhöhe den Score
-            updateScore(); // Update der Score-Anzeige
+            i--;
+            score++;
+            updateScore();
         }
     }
 }
@@ -305,7 +313,7 @@ function animateCoinsObjects() {
 function startCoinsCreation() {
     setInterval(() => {
         createCoinsObject();
-    }, Math.random() * 3000 + 2000);
+    }, Math.random() * 300 + 2000);
 }
 
 //startCoinsCreation();
@@ -417,44 +425,34 @@ function startMissilesCreation() {
 }
 
 function createFireObject() {
-    const missilesObjectsLoader = new OBJLoader();
-    const missilesObjectsMtlLoader = new MTLLoader();
 
-    missilesObjectsMtlLoader.load('../assets/Missile.mtl', (material) => {
+    const fireObjectsLoader = new OBJLoader();
+    const fireObjectsMtlLoader = new MTLLoader();
+
+    fireObjectsMtlLoader.load('../assets/Ball.mtl', (material) => {
 
         material.preload();
-        missilesObjectsLoader.setMaterials(material);
+        fireObjectsLoader.setMaterials(material);
 
-        missilesObjectsLoader.load('../assets/Missile.obj', (missile) => {
+        fireObjectsLoader.load('../assets/Ball.obj', (fire) => {
 
-            missile.position.set(
-                Math.random() * fieldWidth - fieldWidth / 2,
-                fieldHeight / 1.4,
-                150
-            );
-            missile.scale.set(23, 23, 23);
-            missile.rotation.z = Math.PI;
-            missile.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            });
+            fire.position.set(0, -100, 0);
+            fire.scale.set(20, 20, 20);
+            fire.rotation.set(Math.PI / 2, 0, 0);
 
-            scene.add(missile);
-            missileObjects.push(missile);
-
+            scene.add(fire);
         });
     });
 }
 
+//createFireObject();
 startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
-// EVENT HANDLERS
+// GAME LOGIC
 // ---------------------------------------------------------------------------------------------------------------------
 
-function keyboardEventHandler(event, target) {
+function moveUsingKeyboard(event, target) {
     const moveSpeed = 10;
     if (target) {
         if (event.key === 'ArrowLeft') {
@@ -466,13 +464,99 @@ function keyboardEventHandler(event, target) {
     }
 }
 
-function mouseEventHandler(event, target) {
+function moveUsingMaus(event, target) {
     let mouseX = 0;
     mouseX = (event.clientX / window.innerWidth) * 2 - 1;
     if (target) {
         target.position.x = mouseX * fieldWidth / 2;
         constrainObjectPosition(target);
     }
+}
+
+function shoot(spaceship) {
+
+    const color = new THREE.Color(0xff9e13);
+    const shot = createBullet(color);
+    shot.position.set(spaceship.position.x, spaceship.position.y, spaceship.position.z);
+    scene.add(shot);
+
+    const animateShot = () => {
+        shot.position.y += 5;
+        if (shot.position.y < 1000) {
+            requestAnimationFrame(animateShot);
+        }
+        else {
+            scene.remove(shot);
+        }
+    };
+
+    animateShot();
+}
+
+function enemyShoot(blade) {
+
+    const color = new THREE.Color(0x00e4ff);
+    const shot = createBullet(color);
+    const startShootPosition = (fieldHeight / 2) - 50;
+    shot.position.set(blade.position.x, blade.position.y, blade.position.z);
+    scene.add(shot);
+
+    const animateShot = () => {
+        shot.position.y -= 5;
+        if (shot.position.y > (-fieldHeight / 2) && blade.position.y < startShootPosition) {
+            requestAnimationFrame(animateShot);
+        }
+        else {
+            scene.remove(shot);
+        }
+    };
+
+    animateShot();
+}
+
+function constrainObjectPosition(object) {
+
+    if (object) {
+        const boundingBox = new THREE.Box3().setFromObject(object);
+        const width = boundingBox.max.x - boundingBox.min.x;
+        const minX = -window.innerWidth / 2 + width / 2;
+        const maxX = window.innerWidth / 2 - width / 2;
+
+        if (object.position.x < minX) {
+            object.position.x = minX;
+        } else if (object.position.x > maxX) {
+            object.position.x = maxX;
+        }
+    }
+}
+
+function checkCollision(obj1, obj2) {
+
+    // Erstelle eine BoundingBox für beide Objekte
+    const box1 = new THREE.Box3().setFromObject(obj1);
+    const box2 = new THREE.Box3().setFromObject(obj2);
+
+    // Überprüfe, ob die Boxen sich überschneiden (Kollision)
+    return box1.intersectsBox(box2);
+}
+
+function createBullet(color) {
+
+    const sphereGeometry = new THREE.SphereGeometry(
+        18
+    );
+
+    const sphereMaterial = new THREE.MeshStandardMaterial({
+        color: color,
+        metalness: 0.8,
+        roughness: 0.5
+    });
+
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphere.castShadow = true;
+    sphere.receiveShadow = true;
+
+    return sphere;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -495,6 +579,18 @@ function draw() {
 
 requestAnimationFrame(draw);
 
+function resizeCanvasToWindow() {
+
+    const canvas = renderer.domElement;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+        renderer.setSize(width, height, false);
+    }
+    return needResize;
+}
+
 const speed = 0.001;
 
 function animateBackground() {
@@ -510,38 +606,6 @@ function animateBackground() {
 }
 
 animateBackground();
-
-// ---------------------------------------------------------------------------------------------------------------------
-// HELPER FUNCTIONS
-// ---------------------------------------------------------------------------------------------------------------------
-
-function constrainObjectPosition(object) {
-
-    if (object) {
-        const boundingBox = new THREE.Box3().setFromObject(object);
-        const width = boundingBox.max.x - boundingBox.min.x;
-        const minX = -window.innerWidth / 2 + width / 2;
-        const maxX = window.innerWidth / 2 - width / 2;
-
-        if (object.position.x < minX) {
-            object.position.x = minX;
-        } else if (object.position.x > maxX) {
-            object.position.x = maxX;
-        }
-    }
-}
-
-function resizeCanvasToWindow() {
-
-    const canvas = renderer.domElement;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const needResize = canvas.width !== width || canvas.height !== height;
-    if (needResize) {
-        renderer.setSize(width, height, false);
-    }
-    return needResize;
-}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // GUI CONTROLLER

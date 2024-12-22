@@ -177,7 +177,9 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
         });
 
         document.addEventListener('click', (event) => {
-            shoot(spaceship);
+            if (!isGameOver) {
+                shoot(spaceship);
+            }
         });
 
         // GUI Controller:
@@ -607,21 +609,21 @@ function handleGameOver() {
 
     setTimeout(() => {
         scene.remove(spaceshipObj);
+
+        // GUI GameOver Page:
+        const gameOverContainer = document.getElementById('gameOverContainer');
+        gameOverContainer.classList.add('displayContainer');
+
+        const scoreElement = document.getElementById('scoreGameOverPage');
+        const coinsElement = document.getElementById('coinsGameOverPage');
+        const killsElement = document.getElementById('killsGameOverPage');
+
+        scoreElement.innerText = timer;
+        coinsElement.innerText = coinsCounter;
+        killsElement.innerText = killsCounter;
     }, 3000);
 
     console.log("Game Over");
-
-    // GUI GameOver Page:
-    const gameOverContainer = document.getElementById('gameOverContainer');
-    gameOverContainer.classList.add('displayContainer');
-
-    const scoreElement = document.getElementById('scoreGameOverPage');
-    const coinsElement = document.getElementById('coinsGameOverPage');
-    const killsElement = document.getElementById('killsGameOverPage');
-
-    scoreElement.innerText = timer;
-    coinsElement.innerText = coinsCounter;
-    killsElement.innerText = killsCounter;
 }
 
 function constrainObjectPosition(object) {

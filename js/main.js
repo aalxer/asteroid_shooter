@@ -108,6 +108,7 @@ const spaceshipLoader = new OBJLoader();
 const spaceshipMtlLoader = new MTLLoader();
 const spaceshipSize = .5;
 let spaceshipControlsEnabled = false;
+const spaceshipYPos = (-fieldHeight / 2) + 50;
 
 spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
@@ -119,8 +120,7 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
         console.log("Spaceship was loaded successfully !")
 
-        const yPos = (-fieldHeight / 2) + 50;
-        spaceship.position.set(0, yPos, 150);
+        spaceship.position.set(0, spaceshipYPos, 150);
         spaceship.scale.set(spaceshipSize, spaceshipSize, spaceshipSize);
         spaceship.rotation.set(0.3, 3.13, 0);
         spaceship.traverse((child) => {
@@ -207,7 +207,7 @@ function createEnemyObject() {
             blade.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
                 fieldHeight,
-                0
+                150
             );
             blade.scale.set(bladeSize, bladeSize, bladeSize);
             blade.rotation.set(-100 , 0, 0)
@@ -225,6 +225,7 @@ function createEnemyObject() {
                     enemyShoot(blade);
                 }
             }, 5000);
+
         });
     })
 }
@@ -235,7 +236,7 @@ function animateEnemiesObjects() {
 
         const obj = enemiesObjects[i];
 
-        if (!isGameOver && checkCollision(spaceshipObj, obj)) {
+        if (obj.position.y < spaceshipYPos + 50 && !isGameOver && checkCollision(spaceshipObj, obj)) {
             handleGameOver();
         }
 
@@ -339,10 +340,10 @@ let missileObjects = [];
 function createLaser(missile) {
 
     const laserGeometry = new THREE.CylinderGeometry(
-        .5,
-        .5,
-        fieldHeight,
-        5
+        2.5,
+        2.5,
+        fieldHeight * 2,
+        10
     );
     const laserMaterial = new THREE.MeshBasicMaterial({
         color: 0xff4500,
@@ -355,11 +356,16 @@ function createLaser(missile) {
     });
 
     const laser = new THREE.Mesh(laserGeometry, laserMaterial);
-    laser.position.set(0, fieldHeight / 2, -1);
+    laser.position.set(missile.position.x, fieldHeight / 2, -1);
 
+    scene.add(laser);
     startLaserBlink(laserMaterial);
 
-    return laser;
+    setTimeout(() => {
+
+        scene.remove(laser);
+
+    }, 16000);
 }
 
 function startLaserBlink(laserMaterial) {
@@ -393,9 +399,12 @@ function createMissilesObject() {
 
             missile.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
-                fieldHeight / 1.4,
+                fieldHeight,
                 150
             );
+
+            createLaser(missile);
+
             missile.scale.set(23, 23, 23);
             missile.rotation.z = Math.PI;
             missile.traverse((child) => {
@@ -404,9 +413,6 @@ function createMissilesObject() {
                     child.receiveShadow = true;
                 }
             });
-
-            let laser = createLaser(missile);
-            missile.add(laser);
 
             scene.add(missile);
             missileObjects.push(missile);
@@ -418,10 +424,16 @@ function createMissilesObject() {
 function animateMissiles() {
 
     for (let i = 0; i < missileObjects.length; i++) {
+
         const obj = missileObjects[i];
 
+        if (obj.position.y > (-fieldHeight / 2) &&  checkCollision(spaceshipObj, obj)) {
+            handleGameOver();
+        }
+
+
         if (obj.position.y > -fieldHeight / 2) {
-            obj.position.y -= .5;
+            obj.position.y -= 1.4;
         } else {
             scene.remove(obj);
             missileObjects.splice(i, 1);
@@ -433,7 +445,7 @@ function animateMissiles() {
 function startMissilesCreation() {
     setInterval(() => {
         createMissilesObject();
-    }, Math.random() * 10000 + 16000);
+    }, Math.random() * 1000 + 16000);
 }
 
 function createFireObject() {
@@ -561,7 +573,7 @@ function enemyShoot(blade) {
 
     const animateShot = () => {
 
-        if (!isGameOver && checkCollision(spaceshipObj, shot)) {
+        if (shot.position.y < spaceshipYPos + 50 && checkCollision(spaceshipObj, shot)) {
             handleGameOver();
         }
 
@@ -611,11 +623,9 @@ function constrainObjectPosition(object) {
 
 function checkCollision(obj1, obj2) {
 
-    // Erstelle eine BoundingBox für beide Objekte
     const box1 = new THREE.Box3().setFromObject(obj1);
     const box2 = new THREE.Box3().setFromObject(obj2);
 
-    // Überprüfe, ob die Boxen sich überschneiden (Kollision)
     return box1.intersectsBox(box2);
 }
 

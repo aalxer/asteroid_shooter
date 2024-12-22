@@ -221,7 +221,9 @@ function createEnemyObject() {
             enemiesObjects.push(blade);
 
             setInterval(() => {
-                enemyShoot(blade);
+                if (enemiesObjects.includes(blade)) {
+                    enemyShoot(blade);
+                }
             }, 5000);
         });
     })
@@ -261,10 +263,12 @@ startEnemiesCreation();
 // ---------------------------------------------------------------------------------------------------------------------
 
 let coins = [];
-let score = 0;
+let coinsCounter = 0;
 
 function updateScore() {
-    console.log(score);
+    let element = document.getElementById('coinsState');
+    element.innerText = coinsCounter;
+    console.log(coinsCounter);
 }
 
 function createCoinsObject() {
@@ -312,7 +316,7 @@ function animateCoinsObjects() {
             scene.remove(obj);
             coins.splice(i, 1);
             i--;
-            score++;
+            coinsCounter++;
             updateScore();
         }
     }
@@ -324,7 +328,7 @@ function startCoinsCreation() {
     }, Math.random() * 300 + 2000);
 }
 
-//startCoinsCreation();
+startCoinsCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MISSILES
@@ -461,7 +465,28 @@ startMissilesCreation();
 // ---------------------------------------------------------------------------------------------------------------------
 
 let isGameOver = false;
-let enemyShootList = [];
+let enemyShotsList = [];
+let killsCounter = 0;
+let timer = 0;
+
+// Timer starten
+const startTimer = () => {
+    const interval = setInterval(() => {
+        timer++;
+        let element = document.getElementById('timer');
+        element.innerText = timer;
+    }, 50);
+
+    /*
+    setTimeout(() => {
+        clearInterval(interval);
+        console.log('Timer gestoppt.');
+    }, 10000);
+
+     */
+};
+
+startTimer();
 
 function moveUsingKeyboard(event, target) {
 
@@ -499,13 +524,27 @@ function shoot(spaceship) {
 
     const animateShot = () => {
 
-        shot.position.y += 5;
+        shot.position.y += 10;
         if (shot.position.y < 1000) {
             requestAnimationFrame(animateShot);
         }
         else {
             scene.remove(shot);
         }
+
+        for (let i = 0; i < enemiesObjects.length; i++) {
+            let enemy = enemiesObjects[i];
+
+            if(checkCollision(shot, enemy)) {
+                killsCounter += 1;
+                let element = document.getElementById('killsState');
+                element.innerText = killsCounter;
+                scene.remove(enemy);
+                enemiesObjects.splice(i, 1);
+                i--;
+            }
+        }
+
     };
 
     animateShot();
@@ -517,8 +556,8 @@ function enemyShoot(blade) {
     const shot = createBullet(color);
     const startShootPosition = (fieldHeight / 2) - 50;
     shot.position.set(blade.position.x, blade.position.y, blade.position.z);
+    blade.add(shot);
     scene.add(shot);
-    enemyShootList.push(shot);
 
     const animateShot = () => {
 
@@ -530,11 +569,12 @@ function enemyShoot(blade) {
 
         if (shot.position.y > (-fieldHeight / 2) && blade.position.y < startShootPosition) {
             requestAnimationFrame(animateShot);
-        }
-        else {
+
+        } else {
             scene.remove(shot);
+            blade.remove(shot);
         }
-    };
+    }
 
     animateShot();
 }

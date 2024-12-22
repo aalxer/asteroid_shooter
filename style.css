@@ -1,5 +1,57 @@
-.canvas {
-    width: 100vw;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.mainContainer {
     height: 100vh;
-    display: block;
+}
+
+.statebarContainer {
+    padding: 10px 20px;
+    width: 100%;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(
+            to bottom,
+            #b4b4b4 0%,
+            #dedede 10%,
+            white 50%,
+            #dedede 90%,
+            #c4c4c4 100%
+    );
+}
+
+.statebarContainer div {
+    font-size: 18px;
+    font-family: sans-serif;
+    display: inline-flex;
+    align-items: center;
+}
+
+.timerContainer {
+    flex-basis: 100px;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.coinsScoreContainer, .killsScoreContainer {
+    flex-basis: 70px;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.statebarContainer div img {
+    margin-right: 5px;
+}
+
+.canvasContainer {
+   height: auto;
+}
+
+.canvas {
+    height: 100%;
+    width: 100%;
 }

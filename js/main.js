@@ -220,7 +220,14 @@ function createEnemyObject() {
             scene.add(blade);
             enemiesObjects.push(blade);
 
-            setInterval(() => {
+            const enemyInterval = setInterval(() => {
+
+                if (isGameOver) {
+                    clearInterval(enemyInterval);
+                    console.log("Enemey Shooting Intervall gestoppt.");
+                    return;
+                }
+
                 if (enemiesObjects.includes(blade)) {
                     enemyShoot(blade);
                 }
@@ -236,7 +243,7 @@ function animateEnemiesObjects() {
 
         const obj = enemiesObjects[i];
 
-        if (obj.position.y < spaceshipYPos + 50 && !isGameOver && checkCollision(spaceshipObj, obj)) {
+        if (!isGameOver && obj.position.y <= kollisionCheckingPosition && checkCollision(spaceshipObj, obj)) {
             handleGameOver();
         }
 
@@ -312,7 +319,7 @@ function animateCoinsObjects() {
             i--;
         }
 
-        if (checkCollision(obj, spaceshipObj)) {
+        if (!isGameOver && obj.position.y <= kollisionCheckingPosition && checkCollision(obj, spaceshipObj)) {
             // Objekt entfernen und Score erhöhen
             scene.remove(obj);
             coins.splice(i, 1);
@@ -427,7 +434,7 @@ function animateMissiles() {
 
         const obj = missileObjects[i];
 
-        if (obj.position.y > (-fieldHeight / 2) &&  checkCollision(spaceshipObj, obj)) {
+        if (!isGameOver && obj.position.y <= (spaceshipYPos + 300) && checkCollision(spaceshipObj, obj)) {
             handleGameOver();
         }
 
@@ -480,22 +487,22 @@ let isGameOver = false;
 let enemyShotsList = [];
 let killsCounter = 0;
 let timer = 0;
+const kollisionCheckingPosition = spaceshipYPos + 50;
 
 // Timer starten
 const startTimer = () => {
     const interval = setInterval(() => {
+
+        if (isGameOver) {
+            clearInterval(interval);
+            console.log('Timer gestoppt, is GameOver');
+        }
+
         timer++;
         let element = document.getElementById('timer');
         element.innerText = timer;
     }, 50);
 
-    /*
-    setTimeout(() => {
-        clearInterval(interval);
-        console.log('Timer gestoppt.');
-    }, 10000);
-
-     */
 };
 
 startTimer();
@@ -573,7 +580,7 @@ function enemyShoot(blade) {
 
     const animateShot = () => {
 
-        if (shot.position.y < spaceshipYPos + 50 && checkCollision(spaceshipObj, shot)) {
+        if (!isGameOver && shot.position.y <= kollisionCheckingPosition && checkCollision(spaceshipObj, shot)) {
             handleGameOver();
         }
 
@@ -600,7 +607,7 @@ function handleGameOver() {
 
     setTimeout(() => {
         scene.remove(spaceshipObj);
-    }, 5000);
+    }, 3000);
 
     console.log("Game Over");
 }

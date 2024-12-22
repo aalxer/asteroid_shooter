@@ -2,10 +2,13 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: sans-serif;
 }
 
 .mainContainer {
     height: 100vh;
+    position:absolute;
+    z-index: 1;
 }
 
 .statebarContainer {
@@ -26,7 +29,6 @@
 
 .statebarContainer div {
     font-size: 18px;
-    font-family: sans-serif;
     display: inline-flex;
     align-items: center;
 }
@@ -54,4 +56,33 @@
 .canvas {
     height: 100%;
     width: 100%;
+}
+
+.gameOverContainer {
+    height: 100vh;
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+    z-index: 2;
+    opacity: 0;
+    transform: translateY(-400px);
+    transition: opacity 1s ease, transform 2s ease;
+}
+
+.gameOverContainer h1 {
+    font-size: 52px;
+}
+
+.gameOverContainer p {
+    font-size: 28px;
+}
+
+.displayContainer {
+    opacity: 1;
+    transform: translateY(0);
 }

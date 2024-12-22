@@ -224,7 +224,7 @@ function createEnemyObject() {
 
                 if (isGameOver) {
                     clearInterval(enemyInterval);
-                    console.log("Enemey Shooting Intervall gestoppt.");
+                    console.log("Enemy Shooting Intervall gestoppt.");
                     return;
                 }
 
@@ -610,6 +610,18 @@ function handleGameOver() {
     }, 3000);
 
     console.log("Game Over");
+
+    // GUI GameOver Page:
+    const gameOverContainer = document.getElementById('gameOverContainer');
+    gameOverContainer.classList.add('displayContainer');
+
+    const scoreElement = document.getElementById('scoreGameOverPage');
+    const coinsElement = document.getElementById('coinsGameOverPage');
+    const killsElement = document.getElementById('killsGameOverPage');
+
+    scoreElement.innerText = timer;
+    coinsElement.innerText = coinsCounter;
+    killsElement.innerText = killsCounter;
 }
 
 function constrainObjectPosition(object) {

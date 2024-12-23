@@ -429,7 +429,7 @@ function animateMissiles() {
 // GAME LOGIC
 // ---------------------------------------------------------------------------------------------------------------------
 
-const speed = 0.001;
+const speed = 0.005;
 const kollisionCheckingPosition = spaceshipYPos + 50;
 let isGameOver = false;
 let timer = 0;
@@ -641,7 +641,7 @@ function startCoinsCreation() {
     console.log("Coins Creation started .. ");
     setInterval(() => {
         createCoinsObject();
-    }, Math.random() * 300 + 2000);
+    }, Math.random() * 300 + 1000);
 }
 
 function startEnemiesCreation() {

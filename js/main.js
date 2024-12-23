@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import {MTLLoader, OBJLoader} from "three/addons";
 import * as dat from "three/addons/libs/lil-gui.module.min";
+import {getParticleSystem} from '../libs/getParticleSystem'
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -395,8 +396,9 @@ function createMissilesObject() {
                 }
             });
 
-            scene.add(missile);
             missileObjects.push(missile);
+            getSmokeEffect(missile);
+            scene.add(missile);
 
         });
     });
@@ -422,29 +424,6 @@ function animateMissiles() {
         }
     }
 }
-
-function createFireObject() {
-
-    const fireObjectsLoader = new OBJLoader();
-    const fireObjectsMtlLoader = new MTLLoader();
-
-    fireObjectsMtlLoader.load('../assets/Ball.mtl', (material) => {
-
-        material.preload();
-        fireObjectsLoader.setMaterials(material);
-
-        fireObjectsLoader.load('../assets/Ball.obj', (fire) => {
-
-            fire.position.set(0, -100, 0);
-            fire.scale.set(20, 20, 20);
-            fire.rotation.set(Math.PI / 2, 0, 0);
-
-            scene.add(fire);
-        });
-    });
-}
-
-//createFireObject();
 
 // ---------------------------------------------------------------------------------------------------------------------
 // GAME LOGIC
@@ -491,6 +470,7 @@ function startMissilesCreation() {
         createMissilesObject();
     }, Math.random() * 1000 + 16000);
 }
+
 startMissilesCreation();
 
 // Timer starten
@@ -680,7 +660,6 @@ const speed = 0.001;
 
 function animateBackground() {
 
-    console.log("Background animation started")
     bgPlaneTextureMap.offset.y += speed;
 
     if (bgPlaneTextureMap.offset.x <= -1) {
@@ -692,6 +671,34 @@ function animateBackground() {
 }
 
 animateBackground();
+
+// ---------------------------------------------------------------------------------------------------------------------
+// PARTICLE SYSTEM
+// ---------------------------------------------------------------------------------------------------------------------
+
+function getSmokeEffect(object) {
+
+    let smokeEffectContext = {
+        camera,
+        emitter: object,
+        parent: scene,
+        rate: 8,
+        texture: '../assets/img/smoke.png'
+    }
+
+    const smokeEffect = getParticleSystem(smokeEffectContext);
+
+    const animateEffect = () => {
+
+        if (!missileObjects.includes(object)) {
+            smokeEffect.stop();
+        }
+        requestAnimationFrame(animateEffect);
+        smokeEffect.update(0.016);
+    }
+
+    animateEffect();
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // RENDER

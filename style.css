@@ -81,8 +81,8 @@ html, body {
     color: #ffffff;
     z-index: 2;
     opacity: 0;
-    transform: translateY(-400px);
-    transition: opacity 1s ease, transform 2s ease;
+    transform: translateY(-800px);
+    transition: opacity 2s ease, transform 2.5s ease;
 }
 
 .gameOverContainer h1 {

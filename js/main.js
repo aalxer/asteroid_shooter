@@ -429,67 +429,21 @@ function animateMissiles() {
 // GAME LOGIC
 // ---------------------------------------------------------------------------------------------------------------------
 
-let isGameOver = false;
-let enemyShotsList = [];
-let killsCounter = 0;
-let timer = 0;
+const speed = 0.001;
 const kollisionCheckingPosition = spaceshipYPos + 50;
-let enemiesList = [];
-
-function startEnemiesCreation() {
-    console.log("Enemies Creation started .. ");
-    setInterval(() => {
-        createEnemyObject();
-    }, 8000);
-}
-
-startEnemiesCreation();
-
-let coinsList = [];
+let isGameOver = false;
+let timer = 0;
+let killsCounter = 0;
 let coinsCounter = 0;
+let enemiesList = [];
+let coinsList = [];
+let enemyShotsList = [];
+let missileObjects = [];
 
 function updateScore() {
     let element = document.getElementById('coinsState');
     element.innerText = coinsCounter;
 }
-
-function startCoinsCreation() {
-    console.log("Coins Creation started .. ");
-    setInterval(() => {
-        createCoinsObject();
-    }, Math.random() * 300 + 2000);
-}
-
-startCoinsCreation();
-
-let missileObjects = [];
-
-function startMissilesCreation() {
-    console.log("Missiles Creation started .. ");
-    setInterval(() => {
-        createMissilesObject();
-    }, Math.random() * 1000 + 16000);
-}
-
-startMissilesCreation();
-
-// Timer starten
-const startTimer = () => {
-    const interval = setInterval(() => {
-
-        if (isGameOver) {
-            clearInterval(interval);
-            console.log('Timer gestoppt, is GameOver');
-        }
-
-        timer++;
-        let element = document.getElementById('timer');
-        element.innerText = timer;
-    }, 50);
-
-};
-
-startTimer();
 
 function moveUsingKeyboard(event, target) {
 
@@ -656,9 +610,7 @@ function createBullet(color) {
     return sphere;
 }
 
-const speed = 0.001;
-
-function animateBackground() {
+function startAnimateBackground() {
 
     bgPlaneTextureMap.offset.y += speed;
 
@@ -667,10 +619,50 @@ function animateBackground() {
     }
 
     renderer.render(scene, camera);
-    requestAnimationFrame(animateBackground);
+    requestAnimationFrame(startAnimateBackground);
 }
 
-animateBackground();
+const startTimer = () => {
+    const interval = setInterval(() => {
+
+        if (isGameOver) {
+            clearInterval(interval);
+            console.log('Timer gestoppt, is GameOver');
+        }
+
+        timer++;
+        let element = document.getElementById('timer');
+        element.innerText = timer;
+    }, 50);
+
+};
+
+function startCoinsCreation() {
+    console.log("Coins Creation started .. ");
+    setInterval(() => {
+        createCoinsObject();
+    }, Math.random() * 300 + 2000);
+}
+
+function startEnemiesCreation() {
+    console.log("Enemies Creation started .. ");
+    setInterval(() => {
+        createEnemyObject();
+    }, 8000);
+}
+
+function startMissilesCreation() {
+    console.log("Missiles Creation started .. ");
+    setInterval(() => {
+        createMissilesObject();
+    }, Math.random() * 1000 + 16000);
+}
+
+startAnimateBackground();
+startTimer();
+startCoinsCreation();
+startEnemiesCreation();
+startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
 // PARTICLE SYSTEM

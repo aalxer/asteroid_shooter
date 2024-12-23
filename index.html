@@ -7,23 +7,21 @@
     <script type="module" src="js/main.js"></script>
 </head>
 <body>
-<div class="mainContainer">
-    <div class="statebarContainer">
-        <div class="timerContainer">
-            <img src="assets/icons/timer.png" alt="timer-icon"/>
-            <p class="timer" id="timer">0</p>
-        </div>
-        <div class="coinsScoreContainer">
-            <img src="assets/icons/coin.png" alt="coin-icon"/>
-            <p class="coins" id="coinsState">0</p>
-        </div>
-        <div class="killsScoreContainer">
-            <img src="assets/icons/damage.png" alt="damage-icon"/>
-            <p class="kills" id="killsState">0</p>
-        </div>
+<div class="canvasContainer">
+    <canvas id="canvas" class="canvas"></canvas>
+</div>
+<div class="statebarContainer" id="statebarContainer">
+    <div class="coinsScoreContainer">
+        <img src="assets/icons/coin.png" alt="coin-icon"/>
+        <p class="coins" id="coinsState">0</p>
     </div>
-    <div class="canvasContainer">
-        <canvas id="canvas" class="canvas"></canvas>
+    <div class="killsScoreContainer">
+        <img src="assets/icons/damage.png" alt="damage-icon"/>
+        <p class="kills" id="killsState">0</p>
+    </div>
+    <div class="timerContainer">
+        <img src="assets/icons/timer.png" alt="timer-icon"/>
+        <p class="timer" id="timer">0</p>
     </div>
 </div>
 <div class="gameOverContainer" id="gameOverContainer">

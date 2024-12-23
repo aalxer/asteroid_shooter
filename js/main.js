@@ -1,7 +1,6 @@
 import * as THREE from 'three'
-import {FBXLoader, MTLLoader, OBJLoader} from "three/addons";
+import {MTLLoader, OBJLoader} from "three/addons";
 import * as dat from "three/addons/libs/lil-gui.module.min";
-import {Color} from "three";
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -9,13 +8,13 @@ import {Color} from "three";
 
 // create context:
 const canvas = document.getElementById("canvas");
+const scene = new THREE.Scene();
+const fieldWidth = window.innerWidth;
+const fieldHeight = window.innerHeight;
 const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true
 })
-const scene = new THREE.Scene();
-const fieldWidth = window.innerWidth;
-const fieldHeight = window.innerHeight;
 
 renderer.shadowMap.enabled = true;
 
@@ -70,7 +69,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 5);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
-directionalLight.position.set(65,240, 800);
+directionalLight.position.set(65, 240, 800);
 directionalLight.target = backgroundPlane;
 directionalLight.castShadow = true;
 directionalLight.shadow.camera.left = -fieldWidth / 2;
@@ -100,7 +99,7 @@ const axesHelper = new THREE.AxesHelper(300);
 //scene.add(axesHelper);
 
 // ---------------------------------------------------------------------------------------------------------------------
-// SPACESHIP
+// SPACESHIP OBJECT
 // ---------------------------------------------------------------------------------------------------------------------
 
 let spaceshipObj = null;
@@ -112,13 +111,13 @@ const spaceshipYPos = (-fieldHeight / 2) + 50;
 
 spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
-    console.log("Design (.mtl) for Spaceship was loaded successfully !")
+    console.log(".mtl File for Spaceship was loaded successfully !")
     materials.preload();
     spaceshipLoader.setMaterials(materials);
 
     spaceshipLoader.load('../assets/RaiderStarship.obj', (spaceship) => {
 
-        console.log("Spaceship was loaded successfully !")
+        console.log("Spaceship Object was loaded successfully !")
 
         spaceship.position.set(0, spaceshipYPos, 150);
         spaceship.scale.set(spaceshipSize, spaceshipSize, spaceshipSize);
@@ -157,8 +156,8 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
         spotLight.position.set(0, 0, 0);
         spaceship.add(spotLight);
 
-       const spotLightHelper = new THREE.CameraHelper(spotLight.shadow.camera);
-       //scene.add(spotLightHelper);
+        const spotLightHelper = new THREE.CameraHelper(spotLight.shadow.camera);
+        //scene.add(spotLightHelper);
 
         // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -176,6 +175,7 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
             moveUsingKeyboard(event, spaceship);
         });
 
+        // Schießen:
         document.addEventListener('click', (event) => {
             if (!isGameOver) {
                 shoot(spaceship);
@@ -190,21 +190,20 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 })
 
 // ---------------------------------------------------------------------------------------------------------------------
-// ENEMIES
+// ENEMIES OBJECTS
 // ---------------------------------------------------------------------------------------------------------------------
 
-const ememyLoader = new OBJLoader();
+const enemyObjLoader = new OBJLoader();
 const enemyMtlLoader = new MTLLoader();
 const bladeSize = 45;
-let enemiesObjects = [];
 
 function createEnemyObject() {
     enemyMtlLoader.load('../assets/Blade.mtl', (materials) => {
 
         materials.preload();
-        ememyLoader.setMaterials(materials);
+        enemyObjLoader.setMaterials(materials);
 
-        ememyLoader.load('../assets/Blade.obj', (blade) => {
+        enemyObjLoader.load('../assets/Blade.obj', (blade) => {
 
             blade.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
@@ -212,7 +211,7 @@ function createEnemyObject() {
                 150
             );
             blade.scale.set(bladeSize, bladeSize, bladeSize);
-            blade.rotation.set(-100 , 0, 0)
+            blade.rotation.set(-100, 0, 0)
             blade.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
@@ -220,7 +219,7 @@ function createEnemyObject() {
             });
 
             scene.add(blade);
-            enemiesObjects.push(blade);
+            enemiesList.push(blade);
 
             const enemyInterval = setInterval(() => {
 
@@ -230,7 +229,7 @@ function createEnemyObject() {
                     return;
                 }
 
-                if (enemiesObjects.includes(blade)) {
+                if (enemiesList.includes(blade)) {
                     enemyShoot(blade);
                 }
             }, 5000);
@@ -241,9 +240,9 @@ function createEnemyObject() {
 
 function animateEnemiesObjects() {
 
-    for (let i = 0; i < enemiesObjects.length; i++) {
+    for (let i = 0; i < enemiesList.length; i++) {
 
-        const obj = enemiesObjects[i];
+        const obj = enemiesList[i];
 
         if (!isGameOver && obj.position.y <= kollisionCheckingPosition && checkCollision(spaceshipObj, obj)) {
             handleGameOver();
@@ -254,32 +253,15 @@ function animateEnemiesObjects() {
             obj.rotation.y += 0.01;
         } else {
             scene.remove(obj);
-            enemiesObjects.splice(i, 1);
+            enemiesList.splice(i, 1);
             i--;
         }
     }
 }
 
-function startEnemiesCreation() {
-    setInterval(() => {
-        createEnemyObject();
-    }, 8000);
-}
-
-startEnemiesCreation();
-
 // ---------------------------------------------------------------------------------------------------------------------
-// COINS
+// COINS OBJECTS
 // ---------------------------------------------------------------------------------------------------------------------
-
-let coins = [];
-let coinsCounter = 0;
-
-function updateScore() {
-    let element = document.getElementById('coinsState');
-    element.innerText = coinsCounter;
-    console.log(coinsCounter);
-}
 
 function createCoinsObject() {
 
@@ -298,17 +280,17 @@ function createCoinsObject() {
                 fieldHeight / 2,
                 150
             );
-            coin.scale.set(15,15,15);
+            coin.scale.set(15, 15, 15);
             scene.add(coin);
-            coins.push(coin);
+            coinsList.push(coin);
 
         });
     });
 }
 
 function animateCoinsObjects() {
-    for (let i = 0; i < coins.length; i++) {
-        const obj = coins[i];
+    for (let i = 0; i < coinsList.length; i++) {
+        const obj = coinsList[i];
 
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= 2;
@@ -317,14 +299,14 @@ function animateCoinsObjects() {
             obj.rotation.z += 0.05;
         } else {
             scene.remove(obj);
-            coins.splice(i, 1);
+            coinsList.splice(i, 1);
             i--;
         }
 
         if (!isGameOver && obj.position.y <= kollisionCheckingPosition && checkCollision(obj, spaceshipObj)) {
             // Objekt entfernen und Score erhöhen
             scene.remove(obj);
-            coins.splice(i, 1);
+            coinsList.splice(i, 1);
             i--;
             coinsCounter++;
             updateScore();
@@ -332,19 +314,9 @@ function animateCoinsObjects() {
     }
 }
 
-function startCoinsCreation() {
-    setInterval(() => {
-        createCoinsObject();
-    }, Math.random() * 300 + 2000);
-}
-
-startCoinsCreation();
-
 // ---------------------------------------------------------------------------------------------------------------------
-// MISSILES
+// MISSILES OBJECTS
 // ---------------------------------------------------------------------------------------------------------------------
-
-let missileObjects = [];
 
 function createLaser(missile) {
 
@@ -437,9 +409,9 @@ function animateMissiles() {
         const obj = missileObjects[i];
 
         if (!isGameOver && obj.position.y <= (spaceshipYPos + 300) && checkCollision(spaceshipObj, obj)) {
+            console.log("Spaceship was hit by a Missile");
             handleGameOver();
         }
-
 
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= 1.4;
@@ -449,12 +421,6 @@ function animateMissiles() {
             i--;
         }
     }
-}
-
-function startMissilesCreation() {
-    setInterval(() => {
-        createMissilesObject();
-    }, Math.random() * 1000 + 16000);
 }
 
 function createFireObject() {
@@ -479,7 +445,6 @@ function createFireObject() {
 }
 
 //createFireObject();
-startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
 // GAME LOGIC
@@ -490,6 +455,43 @@ let enemyShotsList = [];
 let killsCounter = 0;
 let timer = 0;
 const kollisionCheckingPosition = spaceshipYPos + 50;
+let enemiesList = [];
+
+function startEnemiesCreation() {
+    console.log("Enemies Creation started .. ");
+    setInterval(() => {
+        createEnemyObject();
+    }, 8000);
+}
+
+startEnemiesCreation();
+
+let coinsList = [];
+let coinsCounter = 0;
+
+function updateScore() {
+    let element = document.getElementById('coinsState');
+    element.innerText = coinsCounter;
+}
+
+function startCoinsCreation() {
+    console.log("Coins Creation started .. ");
+    setInterval(() => {
+        createCoinsObject();
+    }, Math.random() * 300 + 2000);
+}
+
+startCoinsCreation();
+
+let missileObjects = [];
+
+function startMissilesCreation() {
+    console.log("Missiles Creation started .. ");
+    setInterval(() => {
+        createMissilesObject();
+    }, Math.random() * 1000 + 16000);
+}
+startMissilesCreation();
 
 // Timer starten
 const startTimer = () => {
@@ -548,20 +550,19 @@ function shoot(spaceship) {
         shot.position.y += 10;
         if (shot.position.y < 1000) {
             requestAnimationFrame(animateShot);
-        }
-        else {
+        } else {
             scene.remove(shot);
         }
 
-        for (let i = 0; i < enemiesObjects.length; i++) {
-            let enemy = enemiesObjects[i];
+        for (let i = 0; i < enemiesList.length; i++) {
+            let enemy = enemiesList[i];
 
-            if(checkCollision(shot, enemy)) {
+            if (checkCollision(shot, enemy)) {
                 killsCounter += 1;
                 let element = document.getElementById('killsState');
                 element.innerText = killsCounter;
                 scene.remove(enemy);
-                enemiesObjects.splice(i, 1);
+                enemiesList.splice(i, 1);
                 i--;
             }
         }
@@ -583,6 +584,7 @@ function enemyShoot(blade) {
     const animateShot = () => {
 
         if (!isGameOver && shot.position.y <= kollisionCheckingPosition && checkCollision(spaceshipObj, shot)) {
+            console.log("Spaceship was shot by a Blade");
             handleGameOver();
         }
 
@@ -604,13 +606,20 @@ function handleGameOver() {
 
     if (isGameOver) return
 
+    console.log("Game Over !");
     isGameOver = true;
     spaceshipControlsEnabled = false;
 
     setTimeout(() => {
+
+        console.log("Cleaning Scene and display GameOver-Page .. ");
+
         scene.remove(spaceshipObj);
 
         // GUI GameOver Page:
+        const statebarContainer = document.getElementById('statebarContainer');
+        statebarContainer.classList.add('hideContainer');
+
         const gameOverContainer = document.getElementById('gameOverContainer');
         gameOverContainer.classList.add('displayContainer');
 
@@ -622,8 +631,6 @@ function handleGameOver() {
         coinsElement.innerText = coinsCounter;
         killsElement.innerText = killsCounter;
     }, 3000);
-
-    console.log("Game Over");
 }
 
 function constrainObjectPosition(object) {
@@ -669,9 +676,38 @@ function createBullet(color) {
     return sphere;
 }
 
+const speed = 0.001;
+
+function animateBackground() {
+
+    console.log("Background animation started")
+    bgPlaneTextureMap.offset.y += speed;
+
+    if (bgPlaneTextureMap.offset.x <= -1) {
+        bgPlaneTextureMap.offset.x = 0;
+    }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animateBackground);
+}
+
+animateBackground();
+
 // ---------------------------------------------------------------------------------------------------------------------
 // RENDER
 // ---------------------------------------------------------------------------------------------------------------------
+
+function resizeCanvasToWindow() {
+
+    const canvas = renderer.domElement;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+        renderer.setSize(width, height, false);
+    }
+    return needResize;
+}
 
 function draw() {
 
@@ -688,34 +724,6 @@ function draw() {
 }
 
 requestAnimationFrame(draw);
-
-function resizeCanvasToWindow() {
-
-    const canvas = renderer.domElement;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const needResize = canvas.width !== width || canvas.height !== height;
-    if (needResize) {
-        renderer.setSize(width, height, false);
-    }
-    return needResize;
-}
-
-const speed = 0.001;
-
-function animateBackground() {
-
-    bgPlaneTextureMap.offset.y += speed;
-
-    if (bgPlaneTextureMap.offset.x <= -1) {
-        bgPlaneTextureMap.offset.x = 0;
-    }
-
-    renderer.render(scene, camera);
-    requestAnimationFrame(animateBackground);
-}
-
-animateBackground();
 
 // ---------------------------------------------------------------------------------------------------------------------
 // GUI CONTROLLER

@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import {MTLLoader, OBJLoader} from "three/addons";
 import * as dat from "three/addons/libs/lil-gui.module.min";
-import {getParticleSystem} from '../libs/getParticleSystem'
+import {getSmokeParticleSystem} from '../libs/getSmokeParticleSystem';
+import {getFireParticleSystem} from '../libs/getFireParticleSystem';
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -543,12 +544,22 @@ function handleGameOver() {
     console.log("Game Over !");
     isGameOver = true;
     spaceshipControlsEnabled = false;
+    getFireEffect(spaceshipObj);
+    /*
+    spaceshipObj.traverse((child) => {
+        if (child.isMesh) {
+            child.material.color.setHex(0x412200);
+        }
+    });
+    
+     */
 
     setTimeout(() => {
 
         console.log("Cleaning Scene and display GameOver-Page .. ");
 
         scene.remove(spaceshipObj);
+        spaceshipObj = null;
 
         // GUI GameOver Page:
         const statebarContainer = document.getElementById('statebarContainer');
@@ -564,7 +575,7 @@ function handleGameOver() {
         scoreElement.innerText = timer;
         coinsElement.innerText = coinsCounter;
         killsElement.innerText = killsCounter;
-    }, 3000);
+    }, 4000);
 }
 
 function constrainObjectPosition(object) {
@@ -660,9 +671,9 @@ function startMissilesCreation() {
 
 startAnimateBackground();
 startTimer();
-startCoinsCreation();
+//startCoinsCreation();
 startEnemiesCreation();
-startMissilesCreation();
+//startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
 // PARTICLE SYSTEM
@@ -678,7 +689,7 @@ function getSmokeEffect(object) {
         texture: '../assets/img/smoke.png'
     }
 
-    const smokeEffect = getParticleSystem(smokeEffectContext);
+    const smokeEffect = getSmokeParticleSystem(smokeEffectContext);
 
     const animateEffect = () => {
 
@@ -687,6 +698,30 @@ function getSmokeEffect(object) {
         }
         requestAnimationFrame(animateEffect);
         smokeEffect.update(0.016);
+    }
+
+    animateEffect();
+}
+
+function getFireEffect(object) {
+
+    let fireEffectContext = {
+        camera,
+        emitter: object,
+        parent: scene,
+        rate: 25,
+        texture: '../assets/img/fire.png'
+    }
+
+    const fireEffect = getFireParticleSystem(fireEffectContext);
+
+    const animateEffect = () => {
+
+        if (spaceshipObj == null) {
+            fireEffect.stop();
+        }
+        requestAnimationFrame(animateEffect);
+        fireEffect.update(0.016);
     }
 
     animateEffect();

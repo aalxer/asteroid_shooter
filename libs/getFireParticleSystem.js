@@ -31,6 +31,7 @@ void main() {
   gl_FragColor = texture2D(diffuseTexture, coords) * vColor;
 }`;
 
+
 function getLinearSpline(lerp) {
 
     const points = [];
@@ -64,7 +65,7 @@ function getLinearSpline(lerp) {
     return { addPoint, getValueAt };
 }
 
-function getParticleSystem(params) {
+function getFireParticleSystem(params) {
 
     let _emitParticles = true;
     const { camera, emitter, parent, rate, texture } = params;
@@ -80,10 +81,7 @@ function getParticleSystem(params) {
         uniforms: uniforms,
         vertexShader: _VS,
         fragmentShader: _FS,
-        // ------------------------------------------------------------
-        // Brightness vom Objekt:
         //blending: THREE.AdditiveBlending,
-        // ------------------------------------------------------------
         depthTest: true,
         depthWrite: false,
         transparent: true,
@@ -113,42 +111,26 @@ function getParticleSystem(params) {
         const c = a.clone();
         return c.lerp(b, t);
     });
-
-    // ------------------------------------------------------------
-    // Farben:
-    colorSpline.addPoint(0.0, new THREE.Color(0xFFFFFF));
-    //colorSpline.addPoint(1.0, new THREE.Color(0xff8080));
-    // ------------------------------------------------------------
+    colorSpline.addPoint(0.0, new THREE.Color(0xc5c5c5));
+    colorSpline.addPoint(1.0, new THREE.Color(0xFFFFFF));
 
     const sizeSpline = getLinearSpline((t, a, b) => {
         return a + t * (b - a);
     });
-    sizeSpline.addPoint(0.0, 0.1);
-    sizeSpline.addPoint(0.1, 0.2);
-    sizeSpline.addPoint(0.2, 0.3);
-    sizeSpline.addPoint(0.3, 0.4);
-    sizeSpline.addPoint(0.4, 0.4);
-    sizeSpline.addPoint(0.6, 0.5);
-    sizeSpline.addPoint(0.8, 0.5);
-    sizeSpline.addPoint(1.0, 0.6);
-    sizeSpline.addPoint(1.2, 0.6);
+    sizeSpline.addPoint(0.0, 0.0);
+    sizeSpline.addPoint(0.5, 0.2);
+    sizeSpline.addPoint(1.0, 0.3);
 
     // max point size = 512; => console.log(ctx.getParameter(ctx.ALIASED_POINT_SIZE_RANGE));
     const radius = 0.5;
-    const maxLife = 10;
-
-    // -----------------------------------------------------------
-    // Größe:
-    const maxSize = .8;
-    // ------------------------------------------------------------
-
+    const maxLife = 2;
+    const maxSize = 3.0;
     let gdfsghk = 0.0;
     function _AddParticles(timeElapsed) {
 
         if (!_emitParticles) {
             return;
         }
-
         gdfsghk += timeElapsed;
         const n = Math.floor(gdfsghk * rate);
         gdfsghk -= n / rate;
@@ -166,14 +148,10 @@ function getParticleSystem(params) {
                 maxLife: life,
                 rotation: Math.random() * 2.0 * Math.PI,
                 rotationRate: Math.random() * 0.01 - 0.005,
-                // ------------------------------------------------------------
-                // Richtung des Effekts:
                 velocity: new THREE.Vector3(
                     0,
-                    -25,
-                    0
-                ),
-                // ------------------------------------------------------------
+                    100,
+                    120),
             });
         }
     }
@@ -260,4 +238,4 @@ function getParticleSystem(params) {
     return { update, stop };
 }
 
-export { getParticleSystem };
+export { getFireParticleSystem };

@@ -4,6 +4,7 @@ import * as dat from "three/addons/libs/lil-gui.module.min";
 import {getSmokeParticleSystem} from '../libs/getSmokeParticleSystem';
 import {getExplosionParticleSystem} from '../libs/getExplosionParticleSystem';
 import {getFireParticleSystem} from '../libs/getFireParticleSystem';
+import {getLaserParticleSystem} from '../libs/getLaserParticleSystem';
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -477,7 +478,7 @@ function moveUsingMaus(event, target) {
 function shoot(spaceship) {
 
     const color = new THREE.Color(0xff9e13);
-    const shot = createBullet(color);
+    const shot = createBullet(color, 18);
     shot.position.set(spaceship.position.x, spaceship.position.y, spaceship.position.z);
     getFireEffect(shot);
     scene.add(shot);
@@ -511,10 +512,11 @@ function shoot(spaceship) {
 
 function enemyShoot(blade) {
 
-    const color = new THREE.Color(0x00e4ff);
-    const shot = createBullet(color);
+    const color = new THREE.Color(0x3dbcff);
+    const shot = createBullet(color, 10);
     const startShootPosition = (fieldHeight / 2) - 50;
     shot.position.set(blade.position.x, blade.position.y, blade.position.z);
+    getLaserEffect(shot);
     blade.add(shot);
     scene.add(shot);
 
@@ -525,7 +527,7 @@ function enemyShoot(blade) {
             handleGameOver();
         }
 
-        shot.position.y -= 5;
+        shot.position.y -= 10;
 
         if (shot.position.y > (-fieldHeight / 2) && blade.position.y < startShootPosition) {
             requestAnimationFrame(animateShot);
@@ -604,10 +606,10 @@ function checkCollision(obj1, obj2) {
     return box1.intersectsBox(box2);
 }
 
-function createBullet(color) {
+function createBullet(color, size) {
 
     const sphereGeometry = new THREE.SphereGeometry(
-        18
+        size
     );
 
     const sphereMaterial = new THREE.MeshStandardMaterial({
@@ -674,7 +676,7 @@ function startMissilesCreation() {
 startAnimateBackground();
 startTimer();
 //startCoinsCreation();
-//startEnemiesCreation();
+startEnemiesCreation();
 //startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -748,6 +750,30 @@ function getFireEffect(object) {
         }
         requestAnimationFrame(animateEffect);
         fireEffect.update(0.016);
+    }
+
+    animateEffect();
+}
+
+function getLaserEffect(object) {
+
+    let laserEffectContext = {
+        camera,
+        emitter: object,
+        parent: scene,
+        rate: 20,
+        texture: '../assets/img/laser.png'
+    }
+
+    const laserEffect = getLaserParticleSystem(laserEffectContext);
+
+    const animateEffect = () => {
+
+        if (spaceshipObj == null) {
+            laserEffect.stop();
+        }
+        requestAnimationFrame(animateEffect);
+        laserEffect.update(0.016);
     }
 
     animateEffect();

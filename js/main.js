@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import {MTLLoader, OBJLoader} from "three/addons";
 import * as dat from "three/addons/libs/lil-gui.module.min";
 import {getSmokeParticleSystem} from '../libs/getSmokeParticleSystem';
-import {getFireParticleSystem} from '../libs/getFireParticleSystem';
+import {getExplosionParticleSystem} from '../libs/getExplosionParticleSystem';
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -544,14 +544,14 @@ function handleGameOver() {
     console.log("Game Over !");
     isGameOver = true;
     spaceshipControlsEnabled = false;
-    getFireEffect(spaceshipObj);
+    getExplosionEffect(spaceshipObj);
     /*
     spaceshipObj.traverse((child) => {
         if (child.isMesh) {
             child.material.color.setHex(0x412200);
         }
     });
-    
+
      */
 
     setTimeout(() => {
@@ -575,7 +575,7 @@ function handleGameOver() {
         scoreElement.innerText = timer;
         coinsElement.innerText = coinsCounter;
         killsElement.innerText = killsCounter;
-    }, 4000);
+    }, 3000);
 }
 
 function constrainObjectPosition(object) {
@@ -659,7 +659,7 @@ function startEnemiesCreation() {
     console.log("Enemies Creation started .. ");
     setInterval(() => {
         createEnemyObject();
-    }, 8000);
+    }, 5000);
 }
 
 function startMissilesCreation() {
@@ -703,17 +703,17 @@ function getSmokeEffect(object) {
     animateEffect();
 }
 
-function getFireEffect(object) {
+function getExplosionEffect(object) {
 
-    let fireEffectContext = {
+    let ExplosionEffectContext = {
         camera,
         emitter: object,
         parent: scene,
-        rate: 25,
-        texture: '../assets/img/fire.png'
+        rate: 20,
+        texture: '../assets/img/explosion.png'
     }
 
-    const fireEffect = getFireParticleSystem(fireEffectContext);
+    const fireEffect = getExplosionParticleSystem(ExplosionEffectContext);
 
     const animateEffect = () => {
 

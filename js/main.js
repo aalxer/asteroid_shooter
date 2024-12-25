@@ -516,7 +516,7 @@ function enemyShoot(blade) {
     const shot = createBullet(color, 10);
     const startShootPosition = (fieldHeight / 2) - 50;
     shot.position.set(blade.position.x, blade.position.y, blade.position.z);
-    getLaserEffect(shot);
+    let laser = getLaserEffect(shot);
     blade.add(shot);
     scene.add(shot);
 
@@ -533,6 +533,7 @@ function enemyShoot(blade) {
             requestAnimationFrame(animateShot);
 
         } else {
+            laser.stop();
             scene.remove(shot);
             blade.remove(shot);
         }
@@ -675,9 +676,9 @@ function startMissilesCreation() {
 
 startAnimateBackground();
 startTimer();
-//startCoinsCreation();
+startCoinsCreation();
 startEnemiesCreation();
-//startMissilesCreation();
+startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
 // PARTICLE SYSTEM
@@ -777,6 +778,8 @@ function getLaserEffect(object) {
     }
 
     animateEffect();
+
+    return laserEffect;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

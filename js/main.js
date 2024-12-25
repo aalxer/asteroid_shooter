@@ -3,6 +3,7 @@ import {MTLLoader, OBJLoader} from "three/addons";
 import * as dat from "three/addons/libs/lil-gui.module.min";
 import {getSmokeParticleSystem} from '../libs/getSmokeParticleSystem';
 import {getExplosionParticleSystem} from '../libs/getExplosionParticleSystem';
+import {getFireParticleSystem} from '../libs/getFireParticleSystem';
 
 // ---------------------------------------------------------------------------------------------------------------------
 // MAIN CONTEXT
@@ -478,6 +479,7 @@ function shoot(spaceship) {
     const color = new THREE.Color(0xff9e13);
     const shot = createBullet(color);
     shot.position.set(spaceship.position.x, spaceship.position.y, spaceship.position.z);
+    getFireEffect(shot);
     scene.add(shot);
 
     const animateShot = () => {
@@ -672,7 +674,7 @@ function startMissilesCreation() {
 startAnimateBackground();
 startTimer();
 //startCoinsCreation();
-startEnemiesCreation();
+//startEnemiesCreation();
 //startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -713,7 +715,31 @@ function getExplosionEffect(object) {
         texture: '../assets/img/explosion.png'
     }
 
-    const fireEffect = getExplosionParticleSystem(ExplosionEffectContext);
+    const explosionEffect = getExplosionParticleSystem(ExplosionEffectContext);
+
+    const animateEffect = () => {
+
+        if (spaceshipObj == null) {
+            explosionEffect.stop();
+        }
+        requestAnimationFrame(animateEffect);
+        explosionEffect.update(0.016);
+    }
+
+    animateEffect();
+}
+
+function getFireEffect(object) {
+
+    let FireEffectContext = {
+        camera,
+        emitter: object,
+        parent: scene,
+        rate: 70,
+        texture: '../assets/img/fire.png'
+    }
+
+    const fireEffect = getFireParticleSystem(FireEffectContext);
 
     const animateEffect = () => {
 

@@ -103,28 +103,27 @@ function getFireParticleSystem(params) {
     const alphaSpline = getLinearSpline((t, a, b) => {
         return a + t * (b - a);
     });
-    alphaSpline.addPoint(0.0, 0.0);
-    alphaSpline.addPoint(0.6, 1.0);
-    alphaSpline.addPoint(1.0, 0.0);
+    alphaSpline.addPoint(0.0, 1.0);
+    alphaSpline.addPoint(1.0, 1.0);
 
     const colorSpline = getLinearSpline((t, a, b) => {
         const c = a.clone();
         return c.lerp(b, t);
     });
-    colorSpline.addPoint(0.0, new THREE.Color(0xc5c5c5));
-    colorSpline.addPoint(1.0, new THREE.Color(0xFFFFFF));
+
+    colorSpline.addPoint(0.0, new THREE.Color(0xFFFFFF));
 
     const sizeSpline = getLinearSpline((t, a, b) => {
         return a + t * (b - a);
     });
-    sizeSpline.addPoint(0.0, 0.0);
-    sizeSpline.addPoint(0.5, 0.2);
-    sizeSpline.addPoint(1.0, 0.3);
+    sizeSpline.addPoint(0.0, 0.4);
+    sizeSpline.addPoint(1.0, 0.4);
+
 
     // max point size = 512; => console.log(ctx.getParameter(ctx.ALIASED_POINT_SIZE_RANGE));
     const radius = 0.5;
-    const maxLife = 2;
-    const maxSize = 3.0;
+    const maxLife = 0.2;
+    const maxSize = 0.7;
     let gdfsghk = 0.0;
     function _AddParticles(timeElapsed) {
 
@@ -150,8 +149,8 @@ function getFireParticleSystem(params) {
                 rotationRate: Math.random() * 0.01 - 0.005,
                 velocity: new THREE.Vector3(
                     0,
-                    100,
-                    120),
+                    300,
+                    200),
             });
         }
     }

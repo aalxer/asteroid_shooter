@@ -13,6 +13,7 @@ import {getLaserParticleSystem} from '../libs/getLaserParticleSystem';
 // create context:
 const canvas = document.getElementById("canvas");
 const scene = new THREE.Scene();
+// Größe des Spielfelds wie das Display:
 const fieldWidth = window.innerWidth;
 const fieldHeight = window.innerHeight;
 const renderer = new THREE.WebGLRenderer({
@@ -22,6 +23,8 @@ const renderer = new THREE.WebGLRenderer({
 
 renderer.shadowMap.enabled = true;
 
+// Orthogonale Kamera ist ideal füe dieses Spiel, weil die Tiefe in der Darstellung irrelevant ist
+// und wir nur eine zum Spielfeld orthogonale Ansicht benötigen :
 const camera = new THREE.OrthographicCamera(
     -fieldWidth / 2,
     fieldWidth / 2,
@@ -30,9 +33,11 @@ const camera = new THREE.OrthographicCamera(
     0.1,
     1000
 );
+// Camera auf z=800 platzieren, alle anderen Objekte werden auf z=150 platziert:
 camera.position.set(0, 0, 800);
 
-// create Plane für den Hintergrund:
+// Plane für den Hintergrund erstellen, um flexible Animationen und Effekte unabhängig
+// vom restlichen Spielfeld zu ermöglichen:
 const textureLoader = new THREE.TextureLoader();
 const bgPlaneTextureMap = textureLoader.load('../assets/textures/starsTexture.jpg', () => {
     console.log('Texture loaded successfully');
@@ -41,8 +46,13 @@ const bgPlaneTextureMap = textureLoader.load('../assets/textures/starsTexture.jp
     console.error('Error loading texture', err);
 });
 
+// Der Hintergrund bewegt sich in -y und wiederholt sich nahtlos durch RepeatWrapping,
+// um das gesamte Display abzudecken:
 bgPlaneTextureMap.wrapS = THREE.RepeatWrapping;
 bgPlaneTextureMap.wrapT = THREE.RepeatWrapping;
+
+// Die optimale Anzahl an Wiederholungen der Textur berechnen, sodass sie sich gleichmäßig
+// über die gesamte Plane erstreckt, ohne gestreckt oder verzerrt zu werden, basierend auf der Displaygröße:
 bgPlaneTextureMap.repeat.set(
     fieldWidth / 300,
     fieldHeight / 300
@@ -62,6 +72,7 @@ const bgPlaneMaterial = new THREE.MeshStandardMaterial({
 
 const backgroundPlane = new THREE.Mesh(bgPlaneGeometry, bgPlaneMaterial);
 backgroundPlane.receiveShadow = true;
+// plane hinter allen objekten platzieren, alle anderen sind ab z=150 platziert:
 backgroundPlane.position.z = -50;
 scene.add(backgroundPlane);
 
@@ -69,9 +80,11 @@ scene.add(backgroundPlane);
 // LIGHTS
 // ---------------------------------------------------------------------------------------------------------------------
 
+// Allgemeine Beleuchtung für die gesamte Szene:
 const ambientLight = new THREE.AmbientLight(0xffffff, 5);
 scene.add(ambientLight);
 
+// Lichtquelle für gezielte Beleuchtung und Schatten, um Details der Objekte hervorzuheben:
 const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
 directionalLight.position.set(65, 240, 800);
 directionalLight.target = backgroundPlane;
@@ -87,20 +100,21 @@ directionalLight.shadow.camera.far = 1500;
 scene.add(directionalLight);
 scene.add(directionalLight.target);
 
+// (Spotlight für die Scene hat leider nicht geklappt, alle mögliche Konfigurationen wurden bereits probiert)
 const spotLight = new THREE.SpotLight(0xffffff, 20, 300);
 spotLight.position.set(50, 100, 150);
 spotLight.castShadow = true;
 scene.add(spotLight);
-spotLight.target.position.set(0, 0, 0);
-scene.add(spotLight.target);
 
-// Helpers:
+// Helpers (fürs Testen):
+/*
 const spotLightHelper = new THREE.SpotLightHelper(spotLight)
-//scene.add(spotLightHelper)
+scene.add(spotLightHelper)
 const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 30)
-//scene.add(directionalLightHelper);
+scene.add(directionalLightHelper);
 const axesHelper = new THREE.AxesHelper(300);
-//scene.add(axesHelper);
+scene.add(axesHelper);
+ */
 
 // ---------------------------------------------------------------------------------------------------------------------
 // SPACESHIP OBJECT
@@ -110,6 +124,8 @@ let spaceshipObj = null;
 const spaceshipLoader = new OBJLoader();
 const spaceshipMtlLoader = new MTLLoader();
 const spaceshipSize = .5;
+// Steuerung des Raumschiffs wird erst aktiviert, wenn es vollständig geladen ist
+// und deaktiviert, wenn er explodiert wurde:
 let spaceshipControlsEnabled = false;
 const spaceshipYPos = (-fieldHeight / 2) + 50;
 
@@ -117,8 +133,10 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
     console.log(".mtl File for Spaceship was loaded successfully !")
     materials.preload();
+    // Die geladenen Materialien dem Loader zugewiesen, um sie auf das Objekt anzuwenden:
     spaceshipLoader.setMaterials(materials);
 
+    // Spaceship mit den geladenen Materialien laden:
     spaceshipLoader.load('../assets/RaiderStarship.obj', (spaceship) => {
 
         console.log("Spaceship Object was loaded successfully !")
@@ -126,31 +144,14 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
         spaceship.position.set(0, spaceshipYPos, 150);
         spaceship.scale.set(spaceshipSize, spaceshipSize, spaceshipSize);
         spaceship.rotation.set(0.3, 3.13, 0);
+        // Alle Meshes im Spaceship werden so konfiguriert, dass sie Schatten werfen:
         spaceship.traverse((child) => {
             if (child.isMesh) {
                 child.castShadow = true;
             }
         });
 
-        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        // Lichtquelle Spaceship
-        // Cube
-        /*
-        const cubeGeometry = new THREE.BoxGeometry(80   , 80, 80);
-        const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-        cube.position.set(0, 50, 0);
-        cube.castShadow = true; // Der Würfel wirft Schatten
-        scene.add(cube);
-
-        const spotlight = new THREE.SpotLight(0xffffff, 1);  // Weißes Licht mit Intensität 1
-        spotlight.position.set(0, 100, 0);  // Position des Spotlights
-        spotlight.castShadow = true;  // Spotlight wirft Schatten
-        scene.add(spotlight);
-
-        const spotlightHelper = new THREE.SpotLightHelper(spotlight);
-        scene.add(spotlightHelper);
-         */
+        // Hinzufügen eines Spotlights, um das Raumschiff auszustrahlen (hat leider auch nicht funktioniert):
         const spotLight = new THREE.SpotLight(
             0xffffff,
             10,
@@ -159,14 +160,12 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
         spotLight.castShadow = true;
         spotLight.position.set(0, 0, 0);
         spaceship.add(spotLight);
-
-        const spotLightHelper = new THREE.CameraHelper(spotLight.shadow.camera);
+        //const spotLightHelper = new THREE.CameraHelper(spotLight.shadow.camera);
         //scene.add(spotLightHelper);
-
-        // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         scene.add(spaceship);
         spaceshipControlsEnabled = true;
+        // Spaceship in der globalen Variable für späteren Zugriff speichern:
         spaceshipObj = spaceship;
 
         // Maus Steuerung:
@@ -179,14 +178,14 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
             moveUsingKeyboard(event, spaceship);
         });
 
-        // Schießen:
+        // Schießen, bei einem Mausklick wird das Raumschiff feuern:
         document.addEventListener('click', (event) => {
             if (!isGameOver) {
                 shoot(spaceship);
             }
         });
 
-        // GUI Controller:
+        // GUI-Controller für das manuelle Anpassen (zum Testen);
         spaceshipFolder.add(spaceshipObj.rotation, 'x', 0, Math.PI * 2).name('Rotate X');
         spaceshipFolder.add(spaceshipObj.rotation, 'y', 0, Math.PI * 2).name('Rotate Y');
         spaceshipFolder.add(spaceshipObj.rotation, 'z', 0, Math.PI * 2).name('Rotate Z');
@@ -194,21 +193,28 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 })
 
 // ---------------------------------------------------------------------------------------------------------------------
-// ENEMIES OBJECTS
+// ENEMIES OBJECTS (Blade-Object)
 // ---------------------------------------------------------------------------------------------------------------------
 
 const enemyObjLoader = new OBJLoader();
 const enemyMtlLoader = new MTLLoader();
 const bladeSize = 45;
 
+/**
+ * Erstellt ein Enemy-Objekt (Blade) und setzt ihm einen Interval zum schiessen
+ */
 function createEnemyObject() {
     enemyMtlLoader.load('../assets/Blade.mtl', (materials) => {
 
         materials.preload();
+        // Die geladenen Materialien dem Loader zugewiesen, um sie auf das Objekt anzuwenden:
         enemyObjLoader.setMaterials(materials);
 
+        // Objekt mit den geladenen Materialien laden:
         enemyObjLoader.load('../assets/Blade.obj', (blade) => {
 
+            // Die Position des Enemy-Objekts wird auf einem zufaelligen X-Wert gesetzt, der innerhalb des sichtbaren Bereichs des Displays liegt,
+            // Y-Position wird auf den oberen Rand des Displays gesetzt, damit das Objekt von oben nach unten faellt:
             blade.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
                 fieldHeight,
@@ -225,14 +231,17 @@ function createEnemyObject() {
             scene.add(blade);
             enemiesList.push(blade);
 
+            // Ein Intervall wird gesetzt, um alle 5 Sekunden einen Schuss vom Objekt abzufeuern:
             const enemyInterval = setInterval(() => {
 
+                // Interval stoppen, wenn das Spiel zu Ende ist:
                 if (isGameOver) {
                     clearInterval(enemyInterval);
                     console.log("Enemy Shooting Intervall gestoppt.");
                     return;
                 }
 
+                // Das Objekt darf schießen, solange es im Spiel(Display) ist:
                 if (enemiesList.includes(blade)) {
                     enemyShoot(blade);
                 }
@@ -242,16 +251,22 @@ function createEnemyObject() {
     })
 }
 
+/**
+ * Bewegt alle Enemy-Objekte im Spiel nach unten und entfernt sie, wenn sie das Display verlassen und
+ * ueberprüft auf Kollisionen mit dem Spaceship und beendet das Spiel bei Kollision
+ */
 function animateEnemiesObjects() {
 
     for (let i = 0; i < enemiesList.length; i++) {
 
         const obj = enemiesList[i];
 
+        // Auf Kollisionen mit dem Spaceship ueberpruefen und das Spiel bei Kollision beenden:
         if (!isGameOver && obj.position.y <= kollisionCheckingPosition && checkCollision(spaceshipObj, obj)) {
             handleGameOver();
         }
 
+        // Das Objekt in -y bewegen, solange er im sichtbaren Bereich ist, sonst wird gelöscht:
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= .5;
             obj.rotation.y += 0.01;
@@ -267,6 +282,9 @@ function animateEnemiesObjects() {
 // COINS OBJECTS
 // ---------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Erzeugt ein Muenzobjekt an zufaelliger Position
+ */
 function createCoinsObject() {
 
     const coinsObjectsLoader = new OBJLoader();
@@ -279,6 +297,8 @@ function createCoinsObject() {
 
         coinsObjectsLoader.load('../assets/Coin.obj', (coin) => {
 
+            // Die Position des Objekts wird auf einem zufaelligen X-Wert gesetzt, der innerhalb des sichtbaren
+            // Bereichs des Displays liegt, Y-Position wird auf den oberen Rand des Displays gesetzt:
             coin.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
                 fieldHeight / 2,
@@ -292,10 +312,15 @@ function createCoinsObject() {
     });
 }
 
+/**
+ * Bewegt die Muenzen nach unten, dreht sie und entfernt sie, wenn sie den Bildschirm verlassen
+ * oder das Spaceship treffen
+ */
 function animateCoinsObjects() {
     for (let i = 0; i < coinsList.length; i++) {
         const obj = coinsList[i];
 
+        // Muenze in -y bewegen und rotieren, solange sie im sichtbaren Bereich sind, sonst entfernen:
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= 2;
             obj.rotation.x += 0.05;
@@ -307,8 +332,8 @@ function animateCoinsObjects() {
             i--;
         }
 
+        // Bei Collision mit dem Spaceship das Objekt entfernen und Coins-Zaehler hochzaehlen:
         if (!isGameOver && obj.position.y <= kollisionCheckingPosition && checkCollision(obj, spaceshipObj)) {
-            // Objekt entfernen und Score erhöhen
             scene.remove(obj);
             coinsList.splice(i, 1);
             i--;
@@ -322,8 +347,13 @@ function animateCoinsObjects() {
 // MISSILES OBJECTS
 // ---------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Erstellt ein Laser für die uebergebene Rakete
+ * @param missile: Rakete die einen Laser bekommen soll
+ */
 function createLaser(missile) {
 
+    // Laser-Form definieren:
     const laserGeometry = new THREE.CylinderGeometry(
         2.5,
         2.5,
@@ -344,32 +374,43 @@ function createLaser(missile) {
     laser.position.set(missile.position.x, fieldHeight / 2, -1);
 
     scene.add(laser);
+    // Animation fuer den Blink-Effekt des Laser starten:
     startLaserBlink(laserMaterial);
 
+    // Setzt einen Timeout, um den Laser nach 16 Sekunden aus der Szene zu entferne:
     setTimeout(() => {
-
         scene.remove(laser);
-
     }, 16000);
 }
 
+/**
+ * Erzeugt Animation fuer Laser
+ * @param laserMaterial: Material die animiert werden
+ */
 function startLaserBlink(laserMaterial) {
 
     const blinkSpeed = 0.02;
-    let opacity = laserMaterial.opacity;
-    let direction = -1;
+    let opacity = laserMaterial.opacity; // initiale Opazitaet des Lasers
+    let direction = -1; // bestimmt, ob die Opazitaet erhoeht oder verringert wird
 
     function animateOpacity() {
-        opacity += direction * blinkSpeed;
+        opacity += direction * blinkSpeed; // erhoeht oder verringert die Opazitaet
+
+        // Wenn eine Grenze erreicht ist (0.2 oder 0.8), wird die Richtung umgekehrt
+        // (die Richtung bestimmt, ob die Opazitaet erhoeht oder verringert wird):
         if (opacity <= 0.2 || opacity >= 0.8) {
             direction *= -1;
         }
-        laserMaterial.opacity = opacity;
+        laserMaterial.opacity = opacity; // setzt die neue Opazitaet des Lasers
     }
 
+    // Blink-Effekt alle 16ms wiederholen:
     setInterval(animateOpacity, 16);
 }
 
+/**
+ * erzeugt eine Rakete und fuegt ihr Smoke-Effect hinzu
+ */
 function createMissilesObject() {
 
     const missilesObjectsLoader = new OBJLoader();
@@ -382,12 +423,15 @@ function createMissilesObject() {
 
         missilesObjectsLoader.load('../assets/Missile.obj', (missile) => {
 
+            // Die Position der Rakete wird auf einem zufaelligen X-Wert gesetzt, der innerhalb des sichtbaren Bereichs des Displays liegt,
+            // Y-Position wird auf den oberen Rand des Displays gesetzt, damit die Rakete von oben nach unten faellt:
             missile.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
                 fieldHeight,
                 150
             );
 
+            // der Rakete einen Laser hinzufuegen:
             createLaser(missile);
 
             missile.scale.set(23, 23, 23);
@@ -400,6 +444,7 @@ function createMissilesObject() {
             });
 
             missileObjects.push(missile);
+            // einen Rauch-Effekt hinzufügen, der von hinten geschossen wird:
             getSmokeEffect(missile);
             scene.add(missile);
 
@@ -407,17 +452,22 @@ function createMissilesObject() {
     });
 }
 
+/**
+ * Bewegt die Rakete nach unten und entfernt sie, wenn sie den Bildschirm verlaesst.
+ * Checkt auf Kollisionen mit dem Spaceship
+ */
 function animateMissiles() {
 
     for (let i = 0; i < missileObjects.length; i++) {
 
         const obj = missileObjects[i];
-
+        // Auf Kollisionen mit dem Spaceship ueberpruefen und das Spiel bei Kollision beenden:
         if (!isGameOver && obj.position.y <= (spaceshipYPos + 300) && checkCollision(spaceshipObj, obj)) {
             console.log("Spaceship was hit by a Missile");
             handleGameOver();
         }
 
+        // Das Objekt in -y bewegen, solange er im sichtbaren Bereich ist, sonst wird geloescht:
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= 1.4;
         } else {
@@ -786,36 +836,47 @@ function getLaserEffect(object) {
 // RENDER
 // ---------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Passt die Größe des Canvas an die Displaygröße an
+ */
 function resizeCanvasToWindow() {
 
     const canvas = renderer.domElement;
     const width = window.innerWidth;
     const height = window.innerHeight;
+    // Überprüft, ob die aktuelle Größe mit der Fenstergröße übereinstimmt:
     const needResize = canvas.width !== width || canvas.height !== height;
+
     if (needResize) {
         renderer.setSize(width, height, false);
     }
     return needResize;
 }
 
+/**
+ * Rendert das Canvas-Objekt und wird die in jedem Frame aufgerufen.
+ * Sie enthält alle Updates für das Rendering und die Animation der Objekte in der Scene
+ */
 function draw() {
 
     if (resizeCanvasToWindow()) {
         const canvas = renderer.domElement;
+        // korrekte Ansicht basierend auf der Fenstergröße:
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     }
     animateEnemiesObjects();
     animateCoinsObjects();
     animateMissiles();
-    spotLightHelper.update();
+    //spotLightHelper.update();
     requestAnimationFrame(draw);
 }
 
+// die draw() wird kontinuierlich wieder aufgerufen und die Animation läuft in einer Schleife:
 requestAnimationFrame(draw);
 
 // ---------------------------------------------------------------------------------------------------------------------
-// GUI CONTROLLER
+// GUI CONTROLLER (zum Testen)
 // ---------------------------------------------------------------------------------------------------------------------
 
 const gui = new dat.GUI();

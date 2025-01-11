@@ -15,11 +15,11 @@ Jedes Partikelsystem ist in einem separaten Modul implementiert, um sie unabhän
 Die Module befinden sich in ./libs/ und basieren auf einem ursprünglich aus einem externen Git-Repository bezogenen Modul,
 das speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen angepasst wurde.  
   
-*ursprünglicher Code für die Module: [Link-Text](https://github.com/bobbyroe/Simple-Particle-Effects)*  
-*Youtube-Tutorial für dieses Modul: [Link-Text](https://www.youtube.com/watch?v=h1UQdbuF204&t=295s)*
+*ursprünglicher Code für die Module: [Github - Simple Particle Effects](https://github.com/bobbyroe/Simple-Particle-Effects)*  
+*Tutorial für dieses Modul: [Youtube - Simple Particle Effects](https://www.youtube.com/watch?v=h1UQdbuF204&t=295s)*
 
 
 ## Assets im Projekt
 Die 3D-Objekte im Spiel werden als .obj-Dateien mit zugehörigen .mtl-Dateien für das Design des Objekts geladen. Diese Modelle stammen aus der folgenden Quelle:  
   
-*[Link-Text](https://www.cgtrader.com)*
+*[CG-Trader](https://www.cgtrader.com)*

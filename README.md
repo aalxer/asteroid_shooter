@@ -1,14 +1,13 @@
 # Asteroid Shooter mit Three.js
----
+
 ## Das Spiel lokal starten
 Bevor das Spiel gestartet werden kann, muss sichergestellt werden, dass alle benötigten Bibliotheken installiert sind.
 Dafür in Terminal folgendes ausführen:
-`npm install`
-
+`npm install`  
 Das Spiel wird lokal mit Vite gestartet, Vite wird verwendet, um den lokalen Entwicklungsserver zu starten und die Anwendung auszuführen.
 Dafür in Terminal folgendes ausführen:
 `npx vite`
----
+
 ## Particle System
 Zur Erzeugung animierter Effekte im Spiel, wie Rauch- und Explosionseffekte wurden verschiedene Particle-Systeme verwendet.
 Jedes Partikelsystem ist in einem separaten Modul implementiert, um sie unabhängig flexibel voneinander anzupassen.

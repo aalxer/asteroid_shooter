@@ -20,6 +20,6 @@ das speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen a
 
 
 ## Assets im Projekt
-Die 3D-Objekte im Spiel werden als .obj-Dateien mit zugehörigen .mtl-Dateien für das Design des Objekts geladen. Diese Modelle stammen aus der folgenden Quelle:  
+Die 3D-Objekte im Spiel werden als .obj-Dateien mit zugehörigen .mtl-Dateien und Textures für das Design des Objekts geladen. Diese Modelle stammen aus der folgenden Quelle:  
   
 *[CG-Trader](https://www.cgtrader.com)*

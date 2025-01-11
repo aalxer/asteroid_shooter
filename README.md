@@ -9,7 +9,7 @@ Das Spiel wird lokal mit Vite gestartet, Vite wird verwendet, um den lokalen Ent
 Dafür in Terminal folgendes ausführen:
 `npx vite`
 
-## Particle System
+## Particle System Effects
 Zur Erzeugung animierter Effekte im Spiel, wie Rauch- und Explosionseffekte wurden verschiedene Particle-Systeme verwendet.
 Jedes Partikelsystem ist in einem separaten Modul implementiert, um sie unabhängig flexibel voneinander anzupassen.  
 Die Module befinden sich in ./libs/ und basieren auf einem ursprünglich aus einem externen Git-Repository bezogenen Modul,

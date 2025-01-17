@@ -14,6 +14,12 @@ Zur Erzeugung animierter Effekte im Spiel, wie Rauch- und Explosionseffekte wurd
 Jedes Partikelsystem ist in einem separaten Modul implementiert, um sie unabhängig flexibel voneinander anzupassen.  
 Die Module befinden sich in ./libs/ und basieren auf einem ursprünglich aus einem externen Git-Repository bezogenen Modul,
 das speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen angepasst wurde.  
+
+Die angepassten Zeilen in dem jeweiligen Script sind zwischen folgenden Zeilen verweist:
+`// ---------------------------`  
+`// AHMED HAMID KADHUM `
+`// code`
+`// ---------------------------`  
   
 *ursprünglicher Code für die Module: [Github - Simple Particle Effects](https://github.com/bobbyroe/Simple-Particle-Effects)*  
 *Tutorial für dieses Modul: [Youtube - Simple Particle Effects](https://www.youtube.com/watch?v=h1UQdbuF204&t=295s)*

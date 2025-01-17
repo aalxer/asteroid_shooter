@@ -15,7 +15,7 @@ Jedes Partikelsystem ist in einem separaten Modul implementiert, um sie unabhän
 Die Module befinden sich in ./libs/ und basieren auf einem ursprünglich aus einem externen Git-Repository bezogenen Modul,
 das speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen angepasst wurde.  
 
-Die angepassten Zeilen in dem jeweiligen Script sind zwischen folgenden Zeilen verweist:
+Die angepassten Zeilen in dem jeweiligen Script sind zwischen folgenden Zeilen zu finden:
 `// ---------------------------`  
 `// AHMED HAMID KADHUM `
 `// code`

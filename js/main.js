@@ -10,9 +10,9 @@ import {getLaserParticleSystem} from '../libs/getLaserParticleSystem';
 // MAIN CONTEXT
 // ---------------------------------------------------------------------------------------------------------------------
 
-// create context:
 const canvas = document.getElementById("canvas");
 const scene = new THREE.Scene();
+
 // Größe des Spielfelds wie das Display:
 const fieldWidth = window.innerWidth;
 const fieldHeight = window.innerHeight;
@@ -23,8 +23,8 @@ const renderer = new THREE.WebGLRenderer({
 
 renderer.shadowMap.enabled = true;
 
-// Orthogonale Kamera ist ideal füe dieses Spiel, weil die Tiefe in der Darstellung irrelevant ist
-// und wir nur eine zum Spielfeld orthogonale Ansicht benötigen :
+// Orthogonale Kamera ist ideal für dieses Spiel, weil die Tiefe in der Darstellung nicht relevant ist
+// und wir nur eine zum Spielfeld orthogonale Ansicht benötigen:
 const camera = new THREE.OrthographicCamera(
     -fieldWidth / 2,
     fieldWidth / 2,
@@ -80,7 +80,6 @@ scene.add(backgroundPlane);
 // LIGHTS
 // ---------------------------------------------------------------------------------------------------------------------
 
-// Allgemeine Beleuchtung für die gesamte Szene:
 const ambientLight = new THREE.AmbientLight(0xffffff, 5);
 scene.add(ambientLight);
 
@@ -151,7 +150,7 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
             }
         });
 
-        // Hinzufügen eines Spotlights, um das Raumschiff auszustrahlen (hat leider auch nicht funktioniert):
+        // ein Spotlight hinzufügen, um das Raumschiff auszustrahlen (hat leider auch nicht funktioniert):
         const spotLight = new THREE.SpotLight(
             0xffffff,
             10,
@@ -165,7 +164,7 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
         scene.add(spaceship);
         spaceshipControlsEnabled = true;
-        // Spaceship in der globalen Variable für späteren Zugriff speichern:
+        // Spaceship in der globalen Variable für die Spiellogik speichern:
         spaceshipObj = spaceship;
 
         // Maus Steuerung:
@@ -185,7 +184,7 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
             }
         });
 
-        // GUI-Controller für das manuelle Anpassen (zum Testen);
+        // GUI-Controller für das manuelle Anpassen der Rotation (zum Testen):
         spaceshipFolder.add(spaceshipObj.rotation, 'x', 0, Math.PI * 2).name('Rotate X');
         spaceshipFolder.add(spaceshipObj.rotation, 'y', 0, Math.PI * 2).name('Rotate Y');
         spaceshipFolder.add(spaceshipObj.rotation, 'z', 0, Math.PI * 2).name('Rotate Z');
@@ -201,7 +200,7 @@ const enemyMtlLoader = new MTLLoader();
 const bladeSize = 45;
 
 /**
- * Erstellt ein Enemy-Objekt (Blade) und setzt ihm einen Interval zum schiessen
+ * Erstellt ein Enemy-Objekt (Blade) und setzt ihm ein Interval zum schiessen
  */
 function createEnemyObject() {
     enemyMtlLoader.load('../assets/Blade.mtl', (materials) => {
@@ -267,7 +266,7 @@ function animateEnemiesObjects() {
             handleGameOver();
         }
 
-        // Das Objekt in -y bewegen, solange er im sichtbaren Bereich ist, sonst wird gelöscht:
+        // Das Objekt in -y bewegen, solange er im sichtbaren Bereich ist, sonst wird geloescht:
         if (obj.position.y > -fieldHeight / 2) {
             obj.position.y -= .5;
             obj.rotation.y += 0.01;
@@ -350,7 +349,7 @@ function animateCoinsObjects() {
 
 /**
  * Erstellt ein Laser für die uebergebene Rakete
- * @param missile: Rakete die einen Laser bekommen soll
+ * @param missile: Rakete die ein Laser bekommen soll
  */
 function createLaser(missile) {
 
@@ -363,7 +362,6 @@ function createLaser(missile) {
     );
     const laserMaterial = new THREE.MeshBasicMaterial({
         color: 0xff4500,
-        emissive: 0xff4500,
         transparent: true,
         opacity: 0.8,
         side: THREE.DoubleSide,
@@ -375,7 +373,7 @@ function createLaser(missile) {
     laser.position.set(missile.position.x, fieldHeight / 2, -1);
 
     scene.add(laser);
-    // Animation fuer den Blink-Effekt des Laser starten:
+    // Animation fuer den Blinkeffekt des Lasers starten:
     startLaserBlink(laserMaterial);
 
     // Setzt einen Timeout, um den Laser nach 16 Sekunden aus der Szene zu entferne:
@@ -386,7 +384,7 @@ function createLaser(missile) {
 
 /**
  * Erzeugt Animation fuer Laser
- * @param laserMaterial: Material die animiert werden
+ * @param laserMaterial: Material die animiert wird
  */
 function startLaserBlink(laserMaterial) {
 
@@ -405,7 +403,7 @@ function startLaserBlink(laserMaterial) {
         laserMaterial.opacity = opacity; // setzt die neue Opazitaet des Lasers
     }
 
-    // Blink-Effekt alle 16ms wiederholen:
+    // Blinkeffekt alle 10ms wiederholen:
     setInterval(animateOpacity, 16);
 }
 
@@ -433,7 +431,7 @@ function createMissilesObject() {
                 150
             );
 
-            // der Rakete einen Laser hinzufuegen:
+            // der Rakete ein Laser hinzufuegen:
             createLaser(missile);
 
             missile.scale.set(23, 23, 23);
@@ -492,7 +490,6 @@ let killsCounter = 0;
 let coinsCounter = 0;
 let enemiesList = [];
 let coinsList = [];
-let enemyShotsList = [];
 let missileObjects = [];
 
 /**
@@ -548,7 +545,7 @@ function moveUsingMaus(event, target) {
 }
 
 /**
- * Löst Sch+sse vom Raumschiff aus
+ * Löst Schüsse vom Raumschiff aus
  * @param spaceship: Objekt, aus dem Schüsse ausgelöst werden
  */
 function shoot(spaceship) {
@@ -607,7 +604,7 @@ function enemyShoot(blade) {
     const color = new THREE.Color(0x3dbcff);
     const shot = createBullet(color, 7);
     shot.position.set(blade.position.x, blade.position.y, blade.position.z);
-    // Laser-Effekt an Schuss anwenden:
+    // Lasereffekt am Schuss anwenden:
     let laser = getLaserEffect(shot);
     blade.add(shot);
     scene.add(shot);
@@ -679,7 +676,7 @@ function handleGameOver() {
 }
 
 /**
- * Beschränkt die Position eines Objekts auf Spielfeldgrenzen
+ * Schränkt die Position eines Objekts auf Spielfeldgrenzen ein
  * @param object: Das Objekt deren Position eingeschränkt werden soll
  */
 function constrainObjectPosition(object) {
@@ -688,7 +685,7 @@ function constrainObjectPosition(object) {
         // BoundingBox des Objekts berechnen:
         const boundingBox = new THREE.Box3().setFromObject(object);
         const width = boundingBox.max.x - boundingBox.min.x;
-        // Grenzen auf Basis der Fensterbreite berechnen
+        // Grenzen auf Basis der Fensterbreite berechnen:
         const minX = -window.innerWidth / 2 + width / 2;
         const maxX = window.innerWidth / 2 - width / 2;
 
@@ -802,7 +799,7 @@ function startMissilesCreation() {
     console.log("Missiles Creation started .. ");
     setInterval(() => {
         createMissilesObject();
-    }, Math.random() * 1000 + 16000);
+    }, Math.random() * 1000 + 14000);
 }
 
 startAnimateBackground();
@@ -815,8 +812,8 @@ startMissilesCreation();
 // PARTICLE SYSTEM
 // Zur Erzeugung animierter Effekte im Spiel, wie Rauch- und Explosionseffekte.
 // Jedes Partikelsystem ist in einem separaten Modul implementiert, um sie unabhängig flexibel voneinander anzupassen.
-// Die Module befinden sich in ./libs/ und basieren auf einem ursprünglich aus einem externen Git-Repository bezogenen Modul,
-// das speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen angepasst wurde.
+// Die Module befinden sich in ./libs/ und basieren auf einem Modul aus einem externen Git-Repo.
+// Das Modul wurde speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen angepasst.
 // ---------------------------------------------------------------------------------------------------------------------
 
 function getSmokeEffect(object) {

@@ -81,7 +81,14 @@ function getExplosionParticleSystem(params) {
         uniforms: uniforms,
         vertexShader: _VS,
         fragmentShader: _FS,
+
+        // -------------------------------------------------------------------------------------------------------------
+        // AHMED HAMID KADHUM
+
+        // Blending entfernt:
         //blending: THREE.AdditiveBlending,
+
+        // -------------------------------------------------------------------------------------------------------------
         depthTest: true,
         depthWrite: false,
         transparent: true,
@@ -103,6 +110,11 @@ function getExplosionParticleSystem(params) {
     const alphaSpline = getLinearSpline((t, a, b) => {
         return a + t * (b - a);
     });
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // AHMED HAMID KADHUM
+    
+    // Punkte manipuliert:
     alphaSpline.addPoint(0.0, 0.0);
     alphaSpline.addPoint(0.6, 1.0);
     alphaSpline.addPoint(1.0, 0.0);
@@ -111,26 +123,34 @@ function getExplosionParticleSystem(params) {
         const c = a.clone();
         return c.lerp(b, t);
     });
-
+    // eine einzige Farbe in allen Punkten:
     colorSpline.addPoint(0.0, new THREE.Color(0xFFFFFF));
+    //colorSpline.addPoint(1.0, new THREE.Color(0xff8080));
 
     const sizeSpline = getLinearSpline((t, a, b) => {
         return a + t * (b - a);
     });
+    // mehr punkte die mit der Zeit größer werden, um die Explosion realistischer darzustellen:
     sizeSpline.addPoint(0.0, 0.0);
     sizeSpline.addPoint(0.5, 0.1);
     sizeSpline.addPoint(1.0, 0.2);
 
     // max point size = 512; => console.log(ctx.getParameter(ctx.ALIASED_POINT_SIZE_RANGE));
     const radius = 0.5;
+    // maxLife von 1.5 auf 3.5 erhöht damit die Partikeln lange halten, was die Explosion dichter macht:
     const maxLife = 3.5;
     const maxSize = 3.0;
     let gdfsghk = 0.0;
     function _AddParticles(timeElapsed) {
 
+        // _emitParticles wird auf false gestate, wenn das Emit-Objekt nicht mehr in der Szene ist
+        // und der Effekt gestoppt werden muss:
         if (!_emitParticles) {
             return;
         }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
         gdfsghk += timeElapsed;
         const n = Math.floor(gdfsghk * rate);
         gdfsghk -= n / rate;
@@ -148,10 +168,17 @@ function getExplosionParticleSystem(params) {
                 maxLife: life,
                 rotation: Math.random() * 2.0 * Math.PI,
                 rotationRate: Math.random() * 0.01 - 0.005,
+                // -----------------------------------------------------------------------------------------------------
+                // AHMED HAMID KADHUM
+
+                // Richtung des Effekts geändert, Effekt wird auf z=qw0 platziert (etwa drin im Objekt),
+                // und y=20 damit es  nach oben gezogen wird:
                 velocity: new THREE.Vector3(
                     0,
                     20,
                     120),
+
+                // -----------------------------------------------------------------------------------------------------
             });
         }
     }
@@ -231,11 +258,18 @@ function getExplosionParticleSystem(params) {
         _UpdateGeometry();
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // AHMED HAMID KADHUM
+
+    // eine Stop-Funktion wurde ergänzt um der Effekt jederzeit zu stoppen,
+    // sonst würde weiterhin erzeugt werden, auch wenn das Objekt nicht mehr ind er Szene ist:
     function stop() {
         _emitParticles = false;
     }
 
     return { update, stop };
+
+    // -----------------------------------------------------------------------------------------------------------------
 }
 
 export { getExplosionParticleSystem };

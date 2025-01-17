@@ -81,7 +81,13 @@ function getLaserParticleSystem(params) {
         uniforms: uniforms,
         vertexShader: _VS,
         fragmentShader: _FS,
+        // -------------------------------------------------------------------------------------------------------------
+        // AHMED HAMID KADHUM
+
+        // Blending entfernt:
         //blending: THREE.AdditiveBlending,
+
+        // -------------------------------------------------------------------------------------------------------------
         depthTest: true,
         depthWrite: false,
         transparent: true,
@@ -111,25 +117,42 @@ function getLaserParticleSystem(params) {
         return c.lerp(b, t);
     });
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // AHMED HAMID KADHUM
+
+    // eine einzige Farbe in allen Punkten:
     colorSpline.addPoint(0.0, new THREE.Color(0xFFFFFF));
+    //colorSpline.addPoint(1.0, new THREE.Color(0xff8080));
 
     const sizeSpline = getLinearSpline((t, a, b) => {
         return a + t * (b - a);
     });
+    // Weniger Punkte mit der gleichen Größe, um konstanten Effekt zu erzeugen:
     sizeSpline.addPoint(0.0, 0.4);
     sizeSpline.addPoint(1.0, 0.4);
 
 
     // max point size = 512; => console.log(ctx.getParameter(ctx.ALIASED_POINT_SIZE_RANGE));
     const radius = 0.5;
+
+    // maxLife von 1.5 auf .15 reduziert damit die Partikeln schneller verschwenden, was für ein Lasereffekt
+    // realistischer wirkt:
     const maxLife = 0.15;
+
+    // maxSize von 3 auf .7 reduziert damit es schmaler wird:
     const maxSize = 0.7;
+
     let gdfsghk = 0.0;
     function _AddParticles(timeElapsed) {
 
+        // _emitParticles wird auf false gestate, wenn das Emit-Objekt nicht mehr in der Szene ist
+        // und der Effekt gestoppt werden muss:
         if (!_emitParticles) {
             return;
         }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
         gdfsghk += timeElapsed;
         const n = Math.floor(gdfsghk * rate);
         gdfsghk -= n / rate;
@@ -147,10 +170,16 @@ function getLaserParticleSystem(params) {
                 maxLife: life,
                 rotation: Math.random() * 2.0 * Math.PI,
                 rotationRate: Math.random() * 0.01 - 0.005,
+                // -----------------------------------------------------------------------------------------------------
+                // AHMED HAMID KADHUM
+
+                // Richtung des Effekts geändert, Lasereffekt wird auf z=200 platziert (vor dem Emit-Objekt):
                 velocity: new THREE.Vector3(
                     0,
                     0,
                     200),
+
+                // -----------------------------------------------------------------------------------------------------
             });
         }
     }
@@ -230,11 +259,18 @@ function getLaserParticleSystem(params) {
         _UpdateGeometry();
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // AHMED HAMID KADHUM
+
+    // eine Stop-Funktion wurde ergänzt um der Effekt jederzeit zu stoppen,
+    // sonst würde weiterhin erzeugt werden, auch wenn das Objekt nicht mehr ind er Szene ist:
     function stop() {
         _emitParticles = false;
     }
 
     return { update, stop };
+
+    // -----------------------------------------------------------------------------------------------------------------
 }
 
 export { getLaserParticleSystem };

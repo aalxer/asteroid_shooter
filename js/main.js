@@ -213,7 +213,8 @@ function createEnemyObject() {
         // Objekt mit den geladenen Materialien laden:
         enemyObjLoader.load('../assets/Blade.obj', (blade) => {
 
-            // Die Position des Enemy-Objekts wird auf einem zufaelligen X-Wert gesetzt, der innerhalb des sichtbaren Bereichs des Displays liegt,
+            // Die Position des Enemy-Objekts wird auf einem zufaelligen X-Wert gesetzt,
+            // der innerhalb des sichtbaren Bereichs des Displays liegt,
             // Y-Position wird auf den oberen Rand des Displays gesetzt, damit das Objekt von oben nach unten faellt:
             blade.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,
@@ -423,7 +424,8 @@ function createMissilesObject() {
 
         missilesObjectsLoader.load('../assets/Missile.obj', (missile) => {
 
-            // Die Position der Rakete wird auf einem zufaelligen X-Wert gesetzt, der innerhalb des sichtbaren Bereichs des Displays liegt,
+            // Die Position der Rakete wird auf einem zufaelligen X-Wert gesetzt,
+            // der innerhalb des sichtbaren Bereichs des Displays liegt,
             // Y-Position wird auf den oberen Rand des Displays gesetzt, damit die Rakete von oben nach unten faellt:
             missile.position.set(
                 Math.random() * fieldWidth - fieldWidth / 2,

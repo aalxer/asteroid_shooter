@@ -80,10 +80,13 @@ function getSmokeParticleSystem(params) {
         uniforms: uniforms,
         vertexShader: _VS,
         fragmentShader: _FS,
-        // ------------------------------------------------------------
-        // Brightness vom Objekt:
+        // -------------------------------------------------------------------------------------------------------------
+        // AHMED HAMID KADHUM
+
+        // Blending entfernt:
         //blending: THREE.AdditiveBlending,
-        // ------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
         depthTest: true,
         depthWrite: false,
         transparent: true,
@@ -105,6 +108,7 @@ function getSmokeParticleSystem(params) {
     const alphaSpline = getLinearSpline((t, a, b) => {
         return a + t * (b - a);
     });
+
     alphaSpline.addPoint(0.0, 0.0);
     alphaSpline.addPoint(0.6, 1.0);
     alphaSpline.addPoint(1.0, 0.0);
@@ -114,15 +118,19 @@ function getSmokeParticleSystem(params) {
         return c.lerp(b, t);
     });
 
-    // ------------------------------------------------------------
-    // Farben:
+    // -----------------------------------------------------------------------------------------------------------------
+    // AHMED HAMID KADHUM
+
+    // eine einzige Farbe in allen Punkten:
     colorSpline.addPoint(0.0, new THREE.Color(0xFFFFFF));
     //colorSpline.addPoint(1.0, new THREE.Color(0xff8080));
-    // ------------------------------------------------------------
 
     const sizeSpline = getLinearSpline((t, a, b) => {
         return a + t * (b - a);
     });
+
+    // Mehrere Punkte wurden hinzugefügt, um dynamische Größen für einen realistischen
+    // Rauch-Effekt hinter der Rakete zu erzeugen. Vorher waren nur 2 größen im Zeitintervall [0 - 1]
     sizeSpline.addPoint(0.0, 0.1);
     sizeSpline.addPoint(0.1, 0.2);
     sizeSpline.addPoint(0.2, 0.3);
@@ -132,22 +140,23 @@ function getSmokeParticleSystem(params) {
     sizeSpline.addPoint(0.8, 0.5);
     sizeSpline.addPoint(1.0, 0.6);
     sizeSpline.addPoint(1.2, 0.6);
-
-    // max point size = 512; => console.log(ctx.getParameter(ctx.ALIASED_POINT_SIZE_RANGE));
     const radius = 0.5;
+
+    // maxLife von 1.5 auf 10 erhöht damit mehr Rauch in der Szene zu sehen wird:
     const maxLife = 10;
 
-    // -----------------------------------------------------------
-    // Größe:
+    // maxSize von 3 auf .8 reduziert damit es schmaler wird:
     const maxSize = .8;
-    // ------------------------------------------------------------
 
     let gdfsghk = 0.0;
     function _AddParticles(timeElapsed) {
 
+        // _emitParticles wird auf false gestate, wenn das Emit-Objekt nicht mehr in der Szene ist
+        // und der Effekt gestoppt werden muss:
         if (!_emitParticles) {
             return;
         }
+    // -----------------------------------------------------------------------------------------------------------------
 
         gdfsghk += timeElapsed;
         const n = Math.floor(gdfsghk * rate);
@@ -166,14 +175,17 @@ function getSmokeParticleSystem(params) {
                 maxLife: life,
                 rotation: Math.random() * 2.0 * Math.PI,
                 rotationRate: Math.random() * 0.01 - 0.005,
-                // ------------------------------------------------------------
-                // Richtung des Effekts:
+                // -----------------------------------------------------------------------------------------------------
+                // AHMED HAMID KADHUM
+
+                // Richtung des Effekts geändert damit es hinter der Rakete geschossen wird:
                 velocity: new THREE.Vector3(
                     0,
                     -25,
                     0
                 ),
-                // ------------------------------------------------------------
+
+                // -----------------------------------------------------------------------------------------------------
             });
         }
     }
@@ -253,11 +265,18 @@ function getSmokeParticleSystem(params) {
         _UpdateGeometry();
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // AHMED HAMID KADHUM
+
+    // eine Stop-Funktion wurde ergänzt um der Effekt jederzeit zu stoppen,
+    // sonst würde weiterhin erzeugt werden, auch wenn das Objekt nicht mehr ind er Szene ist:
     function stop() {
         _emitParticles = false;
     }
 
     return { update, stop };
+
+    // -----------------------------------------------------------------------------------------------------------------
 }
 
 export { getSmokeParticleSystem };

@@ -16,11 +16,12 @@ Die Module befinden sich in ./libs/ und basieren auf einem ursprünglich aus ein
 das speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen angepasst wurde.  
 
 Die angepassten Zeilen in dem jeweiligen Script sind zwischen folgenden Zeilen zu finden:  
-`// ---------------------------`  
-`// AHMED HAMID KADHUM `  
-`// code`  
-`// ---------------------------`  
-  
+```
+// ---------------------------  
+// AHMED HAMID KADHUM  
+// code  
+// ---------------------------  
+```
 *ursprünglicher Code für die Module: [Github - Simple Particle Effects](https://github.com/bobbyroe/Simple-Particle-Effects)*  
 *Tutorial für dieses Modul: [Youtube - Simple Particle Effects](https://www.youtube.com/watch?v=h1UQdbuF204&t=295s)*
 

@@ -268,7 +268,7 @@ function animateEnemiesObjects() {
 
         // Das Objekt in -y bewegen, solange er im sichtbaren Bereich ist, sonst wird geloescht:
         if (obj.position.y > -fieldHeight / 2) {
-            obj.position.y -= .5;
+            obj.position.y -= 1.5;
             obj.rotation.y += 0.01;
         } else {
             scene.remove(obj);
@@ -789,7 +789,7 @@ function startEnemiesCreation() {
     console.log("Enemies Creation started .. ");
     setInterval(() => {
         createEnemyObject();
-    }, 5000);
+    }, 3500);
 }
 
 /**

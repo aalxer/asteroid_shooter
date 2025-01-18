@@ -179,7 +179,7 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
         // Schießen, bei einem Mausklick wird das Raumschiff feuern:
         document.addEventListener('click', (event) => {
-            if (!isGameOver) {
+            if (event.clientY > 50 && !isGameOver) {
                 shoot(spaceship);
             }
         });

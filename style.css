@@ -69,6 +69,11 @@ html, body {
     margin-right: 5px;
 }
 
+.settingIcon {
+    cursor: pointer;
+    margin-left: auto;
+}
+
 .gameOverContainer {
     height: 100%;
     width: 100%;

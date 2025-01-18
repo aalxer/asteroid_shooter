@@ -376,10 +376,10 @@ function createLaser(missile) {
     // Animation fuer den Blinkeffekt des Lasers starten:
     startLaserBlink(laserMaterial);
 
-    // Setzt einen Timeout, um den Laser nach 16 Sekunden aus der Szene zu entferne:
+    // Setzt einen Timeout, um den Laser nach 10 Sekunden aus der Szene zu entferne:
     setTimeout(() => {
         scene.remove(laser);
-    }, 16000);
+    }, 10000);
 }
 
 /**
@@ -469,7 +469,7 @@ function animateMissiles() {
 
         // Das Objekt in -y bewegen, solange er im sichtbaren Bereich ist, sonst wird geloescht:
         if (obj.position.y > -fieldHeight / 2) {
-            obj.position.y -= 1.4;
+            obj.position.y -= 2.4;
         } else {
             scene.remove(obj);
             missileObjects.splice(i, 1);
@@ -805,7 +805,7 @@ function startMissilesCreation() {
 startAnimateBackground();
 startTimer();
 startCoinsCreation();
-startEnemiesCreation();
+//startEnemiesCreation();
 startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -823,7 +823,7 @@ function getSmokeEffect(object) {
         camera, // Kamera, die die Partikel zeigt
         emitter: object, // Objekt, das den Rauch ausstößt
         parent: scene, // Szene als Elternknoten
-        rate: 8, // Erzeugungsrate der Partikel
+        rate: 30, // Erzeugungsrate der Partikel
         texture: '../assets/img/smoke.png' // Textur für die Partikel
     }
 
@@ -930,7 +930,7 @@ function getLaserEffect(object) {
         camera, // Kamera, die die Partikel zeigt
         emitter: object, // Objekt, das den Rauch ausstößt
         parent: scene, // Szene als Elternknoten
-        rate: 20, // Erzeugungsrate der Partikel
+        rate: 25, // Erzeugungsrate der Partikel
         texture: '../assets/img/laser.png' // Textur für die Partikel
     }
 
@@ -1000,7 +1000,7 @@ function draw() {
 requestAnimationFrame(draw);
 
 // ---------------------------------------------------------------------------------------------------------------------
-// GUI CONTROLLER (zum Testen)
+// GUI CONTROLLER
 // ---------------------------------------------------------------------------------------------------------------------
 
 const gui = new dat.GUI();
@@ -1008,6 +1008,11 @@ const spaceshipFolder = gui.addFolder('Spaceship');
 const directionalLightFolder = gui.addFolder('Directional Light');
 const spotLightFolder = gui.addFolder('Spotlight');
 const ambientLightFolder = gui.addFolder('Ambient Light');
+const settingIcon = document.getElementById('setting');
+
+settingIcon.addEventListener("click",(event) => {
+    toggleControlpanel();
+});
 
 directionalLightFolder.add(directionalLight.position, 'x', -500, 800);
 directionalLightFolder.add(directionalLight.position, 'y', -500, 800);
@@ -1018,5 +1023,12 @@ spotLightFolder.add(spotLight.position, 'y', -500, 800);
 spotLightFolder.add(spotLight.position, 'z', -500, 800);
 spotLightFolder.add(spotLight, 'intensity', 0, 50);
 ambientLightFolder.add(ambientLight, 'intensity', 0, 50);
+gui.domElement.style.display = 'none';
+gui.domElement.style.marginTop = '35px';
 
-spaceshipFolder.open();
+/**
+ * blendet die Controlls im Display ein bzw aus
+ */
+function toggleControlpanel() {
+    gui.domElement.style.display = gui.domElement.style.display === 'none' ? 'block' : 'none';
+}

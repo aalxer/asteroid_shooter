@@ -132,21 +132,17 @@ function getSmokeParticleSystem(params) {
     // Mehrere Punkte wurden hinzugefügt, um dynamische Größen für einen realistischen
     // Rauch-Effekt hinter der Rakete zu erzeugen. Vorher waren nur 2 größen im Zeitintervall [0 - 1]
     sizeSpline.addPoint(0.0, 0.1);
-    sizeSpline.addPoint(0.1, 0.2);
-    sizeSpline.addPoint(0.2, 0.3);
-    sizeSpline.addPoint(0.3, 0.4);
-    sizeSpline.addPoint(0.4, 0.4);
-    sizeSpline.addPoint(0.6, 0.5);
-    sizeSpline.addPoint(0.8, 0.5);
-    sizeSpline.addPoint(1.0, 0.6);
-    sizeSpline.addPoint(1.2, 0.6);
+    sizeSpline.addPoint(0.05, 0.2);
+    sizeSpline.addPoint(0.1, 0.3);
+    sizeSpline.addPoint(0.15, 0.4);
+
     const radius = 0.5;
 
     // maxLife von 1.5 auf 10 erhöht damit mehr Rauch in der Szene zu sehen wird:
-    const maxLife = 10;
+    const maxLife = 6;
 
     // maxSize von 3 auf .8 reduziert damit es schmaler wird:
-    const maxSize = .8;
+    const maxSize = .6;
 
     let gdfsghk = 0.0;
     function _AddParticles(timeElapsed) {
@@ -181,7 +177,7 @@ function getSmokeParticleSystem(params) {
                 // Richtung des Effekts geändert damit es hinter der Rakete geschossen wird:
                 velocity: new THREE.Vector3(
                     0,
-                    -25,
+                    -35,
                     0
                 ),
 

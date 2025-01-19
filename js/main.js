@@ -179,7 +179,7 @@ spaceshipMtlLoader.load('../assets/RaiderStarship.mtl', (materials) => {
 
         // Schießen, bei einem Mausklick wird das Raumschiff feuern:
         document.addEventListener('click', (event) => {
-            if (event.clientY > 50 && !isGameOver) {
+            if (event.clientY > 50 && !isGameOver && spaceshipControlsEnabled) {
                 shoot(spaceship);
             }
         });
@@ -234,6 +234,8 @@ function createEnemyObject() {
             // Ein Intervall wird gesetzt, um alle 5 Sekunden einen Schuss vom Objekt abzufeuern:
             const enemyInterval = setInterval(() => {
 
+                if (isPaused) return;
+
                 // Interval stoppen, wenn das Spiel zu Ende ist:
                 if (isGameOver) {
                     clearInterval(enemyInterval);
@@ -258,6 +260,8 @@ function createEnemyObject() {
 function animateEnemiesObjects() {
 
     for (let i = 0; i < enemiesList.length; i++) {
+
+        if (isPaused) return
 
         const obj = enemiesList[i];
 
@@ -319,6 +323,8 @@ function createCoinsObject() {
 function animateCoinsObjects() {
     for (let i = 0; i < coinsList.length; i++) {
         const obj = coinsList[i];
+
+        if(isPaused) return
 
         // Muenze in -y bewegen und rotieren, solange sie im sichtbaren Bereich sind, sonst entfernen:
         if (obj.position.y > -fieldHeight / 2) {
@@ -460,6 +466,8 @@ function animateMissiles() {
 
     for (let i = 0; i < missileObjects.length; i++) {
 
+        if (isPaused) return
+
         const obj = missileObjects[i];
         // Auf Kollisionen mit dem Spaceship ueberpruefen und das Spiel bei Kollision beenden:
         if (!isGameOver && obj.position.y <= (spaceshipYPos + 300) && checkCollision(spaceshipObj, obj)) {
@@ -564,6 +572,12 @@ function shoot(spaceship) {
     // Schuss nach oben bewegen:
     const animateShot = () => {
 
+        // wenn das Spiel pausiert ist, Schleife läuft weiter, aber keine Bewegung:
+        if (isPaused) {
+            requestAnimationFrame(animateShot);
+            return;
+        }
+
         shot.position.y += 10;
 
         // Schuss weiter bewegen, wenn er im sichtbaren Bereich ist, sonst löschen:
@@ -613,6 +627,12 @@ function enemyShoot(blade) {
     // Schuss nach unten bewegen:
     const animateShot = () => {
 
+        // wenn das Spiel pausiert ist, Schleife läuft weiter, aber keine Bewegung:
+        if (isPaused) {
+            requestAnimationFrame(animateShot);
+            return;
+        }
+
         // Kollision mit dem Raumschiff überprüfen:
         if (!isGameOver && shot.position.y <= kollisionCheckingPosition && checkCollision(spaceshipObj, shot)) {
             console.log("Spaceship was shot by a Blade");
@@ -624,7 +644,6 @@ function enemyShoot(blade) {
         // Schuss weiter bewegen, wenn er im sichtbaren Bereich ist, sonst löschen:
         if (shot.position.y > (-fieldHeight / 2) && blade.position.y < startShootPosition) {
             requestAnimationFrame(animateShot);
-
         } else {
             laser.stop();
             scene.remove(shot);
@@ -743,6 +762,12 @@ function createBullet(color, size) {
  */
 function startAnimateBackground() {
 
+    // wenn das Spiel pausiert ist, Schleife läuft weiter, aber keine Bewegung:
+    if (isPaused) {
+        requestAnimationFrame(startAnimateBackground);
+        return;
+    }
+
     bgPlaneTextureMap.offset.y += speed;
 
     if (bgPlaneTextureMap.offset.x <= -1) {
@@ -759,6 +784,8 @@ function startAnimateBackground() {
  */
 const startTimer = () => {
     const interval = setInterval(() => {
+
+        if(isPaused) return;
 
         // Timer stoppen, wenn das Spiel vorbei ist:
         if (isGameOver) {
@@ -779,6 +806,7 @@ const startTimer = () => {
 function startCoinsCreation() {
     console.log("Coins Creation started .. ");
     setInterval(() => {
+        if (isPaused) return
         createCoinsObject();
     }, Math.random() * 300 + 1000);
 }
@@ -789,6 +817,7 @@ function startCoinsCreation() {
 function startEnemiesCreation() {
     console.log("Enemies Creation started .. ");
     setInterval(() => {
+        if (isPaused) return
         createEnemyObject();
     }, 3500);
 }
@@ -799,6 +828,7 @@ function startEnemiesCreation() {
 function startMissilesCreation() {
     console.log("Missiles Creation started .. ");
     setInterval(() => {
+        if (isPaused) return
         createMissilesObject();
     }, Math.random() * 1000 + 14000);
 }
@@ -1010,10 +1040,27 @@ const directionalLightFolder = gui.addFolder('Directional Light');
 const spotLightFolder = gui.addFolder('Spotlight');
 const ambientLightFolder = gui.addFolder('Ambient Light');
 const settingIcon = document.getElementById('setting');
+const pauseIcon = document.getElementById('pause');
+
+pauseIcon.addEventListener("click", () => {
+    togglePauseGame();
+})
 
 settingIcon.addEventListener("click",(event) => {
     toggleControlpanel();
 });
+
+document.addEventListener("keydown", (event) => {
+    if(event.code === "Space") {
+        togglePauseGame();
+    }
+})
+
+document.addEventListener("keydown", (event) => {
+    if(event.code === "ControlLeft" || event.code === "ControlRight") {
+        toggleControlpanel();
+    }
+})
 
 directionalLightFolder.add(directionalLight.position, 'x', -500, 1000);
 directionalLightFolder.add(directionalLight.position, 'y', -500, 1000);
@@ -1032,4 +1079,9 @@ gui.domElement.style.marginTop = '35px';
  */
 function toggleControlpanel() {
     gui.domElement.style.display = gui.domElement.style.display === 'none' ? 'block' : 'none';
+}
+
+function togglePauseGame() {
+    isPaused = !isPaused;
+    spaceshipControlsEnabled = !spaceshipControlsEnabled;
 }

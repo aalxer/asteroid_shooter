@@ -13,6 +13,41 @@ html, body {
     overflow: hidden;
 }
 
+.homepageContainer {
+    height: 100%;
+    width: 100%;
+    background-image: url('assets/img/homepage_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.homepageContentContainer {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.startBtn {
+    font-size: 3rem;
+    padding: 10px 120px;
+    text-transform: uppercase;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #e1ffff;
+    border: #e1ffff solid 2px;
+    z-index: 1;
+    transition: ease all .5s;
+}
+
+.startBtn:hover {
+    cursor: pointer;
+    background-color: #983da6;
+}
+
 .canvasContainer {
     margin: 0;
     padding: 0;
@@ -108,4 +143,8 @@ html, body {
 
 .hideContainer {
     opacity: 0;
+}
+
+.hidden {
+    display: none;
 }

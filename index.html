@@ -7,32 +7,40 @@
     <script type="module" src="js/main.js"></script>
 </head>
 <body>
-<div class="canvasContainer">
-    <canvas id="canvas" class="canvas"></canvas>
-</div>
-<div class="statebarContainer" id="statebarContainer">
-    <div class="coinsScoreContainer">
-        <img src="assets/icons/coin.png" alt="coin-icon"/>
-        <p class="coins" id="coinsState">0</p>
-    </div>
-    <div class="killsScoreContainer">
-        <img src="assets/icons/damage.png" alt="damage-icon"/>
-        <p class="kills" id="killsState">0</p>
-    </div>
-    <div class="timerContainer">
-        <img src="assets/icons/timer.png" alt="timer-icon"/>
-        <p class="timer" id="timer">0</p>
-    </div>
-    <div class="statebarRightContainer">
-        <img id="pause" class="settingIcon" src="assets/icons/pause.png" alt="pause-icon"/>
-        <img id="setting" class="settingIcon" src="assets/icons/setting.png" alt="setting-icon"/>
+<div id="homepageContainer" class="homepageContainer">
+    <div class="homepageContentContainer">
+        <img src="assets/img/logo.png" alt="logo">
+        <button class="startBtn" id="startBtn">Start</button>
     </div>
 </div>
-<div class="gameOverContainer" id="gameOverContainer">
-    <h1>Game Over</h1>
-    <p>Score: <span id="scoreGameOverPage"></span></p>
-    <p>Collected Coins: <span id="coinsGameOverPage"></span></p>
-    <p>Crashed Spaceships: <span id="killsGameOverPage"></span></p>
+<div id="gameContainer" class="gameContainer hidden">
+    <div class="canvasContainer">
+        <canvas id="canvas" class="canvas"></canvas>
+    </div>
+    <div class="statebarContainer" id="statebarContainer">
+        <div class="coinsScoreContainer">
+            <img src="assets/icons/coin.png" alt="coin-icon"/>
+            <p class="coins" id="coinsState">0</p>
+        </div>
+        <div class="killsScoreContainer">
+            <img src="assets/icons/damage.png" alt="damage-icon"/>
+            <p class="kills" id="killsState">0</p>
+        </div>
+        <div class="timerContainer">
+            <img src="assets/icons/timer.png" alt="timer-icon"/>
+            <p class="timer" id="timer">0</p>
+        </div>
+        <div class="statebarRightContainer">
+            <img id="pause" class="settingIcon" src="assets/icons/pause.png" alt="pause-icon"/>
+            <img id="setting" class="settingIcon" src="assets/icons/setting.png" alt="setting-icon"/>
+        </div>
+    </div>
+    <div class="gameOverContainer" id="gameOverContainer">
+        <h1>Game Over</h1>
+        <p>Score: <span id="scoreGameOverPage"></span></p>
+        <p>Collected Coins: <span id="coinsGameOverPage"></span></p>
+        <p>Crashed Spaceships: <span id="killsGameOverPage"></span></p>
+    </div>
 </div>
 </body>
 </html>

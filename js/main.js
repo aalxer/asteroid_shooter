@@ -435,7 +435,7 @@ function createMissilesObject() {
             createLaser(missile);
 
             missile.scale.set(23, 23, 23);
-            missile.rotation.z = Math.PI;
+            missile.rotation.x = Math.PI;
             missile.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
@@ -485,6 +485,7 @@ function animateMissiles() {
 const speed = 0.005;
 const kollisionCheckingPosition = spaceshipYPos + 50; // ab welche y-Position soll das kollisionChecking beginnen
 let isGameOver = false;
+let isPaused = false;
 let timer = 0;
 let killsCounter = 0;
 let coinsCounter = 0;
@@ -805,7 +806,7 @@ function startMissilesCreation() {
 startAnimateBackground();
 startTimer();
 startCoinsCreation();
-//startEnemiesCreation();
+startEnemiesCreation();
 startMissilesCreation();
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -1014,9 +1015,9 @@ settingIcon.addEventListener("click",(event) => {
     toggleControlpanel();
 });
 
-directionalLightFolder.add(directionalLight.position, 'x', -500, 800);
-directionalLightFolder.add(directionalLight.position, 'y', -500, 800);
-directionalLightFolder.add(directionalLight.position, 'z', -500, 800);
+directionalLightFolder.add(directionalLight.position, 'x', -500, 1000);
+directionalLightFolder.add(directionalLight.position, 'y', -500, 1000);
+directionalLightFolder.add(directionalLight.position, 'z', -500, 1000);
 directionalLightFolder.add(directionalLight, 'intensity', 0, 50);
 spotLightFolder.add(spotLight.position, 'x', -500, 800);
 spotLightFolder.add(spotLight.position, 'y', -500, 800);

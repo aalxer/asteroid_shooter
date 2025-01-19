@@ -25,7 +25,7 @@ function startGame() {
     const canvas = document.getElementById("canvas");
     const scene = new THREE.Scene();
 
-// Größe des Spielfelds wie das Display:
+    // Größe des Spielfelds wie das Display:
     const fieldWidth = window.innerWidth;
     const fieldHeight = window.innerHeight;
     const renderer = new THREE.WebGLRenderer({
@@ -35,8 +35,8 @@ function startGame() {
 
     renderer.shadowMap.enabled = true;
 
-// Orthogonale Kamera ist ideal für dieses Spiel, weil die Tiefe in der Darstellung nicht relevant ist
-// und wir nur eine zum Spielfeld orthogonale Ansicht benötigen:
+    // Orthogonale Kamera ist ideal für dieses Spiel, weil die Tiefe in der Darstellung nicht relevant ist
+    // und wir nur eine zum Spielfeld orthogonale Ansicht benötigen:
     const camera = new THREE.OrthographicCamera(
         -fieldWidth / 2,
         fieldWidth / 2,
@@ -45,11 +45,11 @@ function startGame() {
         0.1,
         1000
     );
-// Camera auf z=800 platzieren, alle anderen Objekte werden auf z=150 platziert:
+    // Camera auf z=800 platzieren, alle anderen Objekte werden auf z=150 platziert:
     camera.position.set(0, 0, 800);
 
-// Plane für den Hintergrund erstellen, um flexible Animationen und Effekte unabhängig
-// vom restlichen Spielfeld zu ermöglichen:
+    // Plane für den Hintergrund erstellen, um flexible Animationen und Effekte unabhängig
+    // vom restlichen Spielfeld zu ermöglichen:
     const textureLoader = new THREE.TextureLoader();
     const bgPlaneTextureMap = textureLoader.load('../assets/textures/starsTexture.jpg', () => {
         console.log('Texture loaded successfully');
@@ -58,13 +58,13 @@ function startGame() {
         console.error('Error loading texture', err);
     });
 
-// Der Hintergrund bewegt sich in -y und wiederholt sich nahtlos durch RepeatWrapping,
-// um das gesamte Display abzudecken:
+    // Der Hintergrund bewegt sich in -y und wiederholt sich nahtlos durch RepeatWrapping,
+    // um das gesamte Display abzudecken:
     bgPlaneTextureMap.wrapS = THREE.RepeatWrapping;
     bgPlaneTextureMap.wrapT = THREE.RepeatWrapping;
 
-// Die optimale Anzahl an Wiederholungen der Textur berechnen, sodass sie sich gleichmäßig
-// über die gesamte Plane erstreckt, ohne gestreckt oder verzerrt zu werden, basierend auf der Displaygröße:
+    // Die optimale Anzahl an Wiederholungen der Textur berechnen, sodass sie sich gleichmäßig
+    // über die gesamte Plane erstreckt, ohne gestreckt oder verzerrt zu werden, basierend auf der Displaygröße:
     bgPlaneTextureMap.repeat.set(
         fieldWidth / 300,
         fieldHeight / 300
@@ -84,18 +84,18 @@ function startGame() {
 
     const backgroundPlane = new THREE.Mesh(bgPlaneGeometry, bgPlaneMaterial);
     backgroundPlane.receiveShadow = true;
-// plane hinter allen objekten platzieren, alle anderen sind ab z=150 platziert:
+    // plane hinter allen objekten platzieren, alle anderen sind ab z=150 platziert:
     backgroundPlane.position.z = -50;
     scene.add(backgroundPlane);
 
-// ---------------------------------------------------------------------------------------------------------------------
-// LIGHTS
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // LIGHTS
+    // ---------------------------------------------------------------------------------------------------------------------
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 5);
     scene.add(ambientLight);
 
-// Lichtquelle für gezielte Beleuchtung und Schatten, um Details der Objekte hervorzuheben:
+    // Lichtquelle für gezielte Beleuchtung und Schatten, um Details der Objekte hervorzuheben:
     const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
     directionalLight.position.set(65, 240, 800);
     directionalLight.target = backgroundPlane;
@@ -111,13 +111,13 @@ function startGame() {
     scene.add(directionalLight);
     scene.add(directionalLight.target);
 
-// (Spotlight für die Scene hat leider nicht geklappt, alle mögliche Konfigurationen wurden bereits probiert)
+    // (Spotlight für die Scene hat leider nicht geklappt, alle mögliche Konfigurationen wurden bereits probiert)
     const spotLight = new THREE.SpotLight(0xffffff, 20, 300);
     spotLight.position.set(50, 100, 150);
     spotLight.castShadow = true;
     scene.add(spotLight);
 
-// Helpers (fürs Testen):
+    // Helpers (fürs Testen):
     /*
     const spotLightHelper = new THREE.SpotLightHelper(spotLight)
     scene.add(spotLightHelper)
@@ -127,16 +127,16 @@ function startGame() {
     scene.add(axesHelper);
      */
 
-// ---------------------------------------------------------------------------------------------------------------------
-// SPACESHIP OBJECT
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // SPACESHIP OBJECT
+    // ---------------------------------------------------------------------------------------------------------------------
 
     let spaceshipObj = null;
     const spaceshipLoader = new OBJLoader();
     const spaceshipMtlLoader = new MTLLoader();
     const spaceshipSize = .5;
-// Steuerung des Raumschiffs wird erst aktiviert, wenn es vollständig geladen ist
-// und deaktiviert, wenn er explodiert wurde:
+    // Steuerung des Raumschiffs wird erst aktiviert, wenn es vollständig geladen ist
+    // und deaktiviert, wenn er explodiert wurde:
     let spaceshipControlsEnabled = false;
     const spaceshipYPos = (-fieldHeight / 2) + 50;
 
@@ -203,9 +203,9 @@ function startGame() {
         });
     })
 
-// ---------------------------------------------------------------------------------------------------------------------
-// ENEMIES OBJECTS (Blade)
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // ENEMIES OBJECTS (Blade)
+    // ---------------------------------------------------------------------------------------------------------------------
 
     const enemyObjLoader = new OBJLoader();
     const enemyMtlLoader = new MTLLoader();
@@ -243,7 +243,7 @@ function startGame() {
                 scene.add(blade);
                 enemiesList.push(blade);
 
-                // Ein Intervall wird gesetzt, um alle 5 Sekunden einen Schuss vom Objekt abzufeuern:
+                // Ein Intervall wird gesetzt, um alle 2 Sekunden einen Schuss vom Objekt abzufeuern:
                 const enemyInterval = setInterval(() => {
 
                     if (isPaused) return;
@@ -259,7 +259,7 @@ function startGame() {
                     if (enemiesList.includes(blade)) {
                         enemyShoot(blade);
                     }
-                }, 5000);
+                }, 2000);
 
             });
         })
@@ -294,9 +294,9 @@ function startGame() {
         }
     }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// COINS OBJECTS
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // COINS OBJECTS
+    // ---------------------------------------------------------------------------------------------------------------------
 
     /**
      * Erzeugt ein Muenzobjekt an zufaelliger Position
@@ -361,9 +361,9 @@ function startGame() {
         }
     }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// MISSILES OBJECTS
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // MISSILES OBJECTS
+    // ---------------------------------------------------------------------------------------------------------------------
 
     /**
      * Erstellt ein Laser für die uebergebene Rakete
@@ -498,9 +498,9 @@ function startGame() {
         }
     }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// GAME LOGIC
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // GAME LOGIC
+    // ---------------------------------------------------------------------------------------------------------------------
 
     const speed = 0.005;
     const kollisionCheckingPosition = spaceshipYPos + 50; // ab welche y-Position soll das kollisionChecking beginnen
@@ -851,13 +851,13 @@ function startGame() {
     startEnemiesCreation();
     startMissilesCreation();
 
-// ---------------------------------------------------------------------------------------------------------------------
-// PARTICLE SYSTEM
-// Zur Erzeugung animierter Effekte im Spiel, wie Rauch- und Explosionseffekte.
-// Jedes Partikelsystem ist in einem separaten Modul implementiert, um sie unabhängig flexibel voneinander anzupassen.
-// Die Module befinden sich in ./libs/ und basieren auf einem Modul aus einem externen Git-Repo.
-// Das Modul wurde speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen angepasst.
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // PARTICLE SYSTEM
+    // Zur Erzeugung animierter Effekte im Spiel, wie Rauch- und Explosionseffekte.
+    // Jedes Partikelsystem ist in einem separaten Modul implementiert, um sie unabhängig flexibel voneinander anzupassen.
+    // Die Module befinden sich in ./libs/ und basieren auf einem Modul aus einem externen Git-Repo.
+    // Das Modul wurde speziell für verschiedene Effekte wie Rauch, Feuer, Laser und Explosionen angepasst.
+    // ---------------------------------------------------------------------------------------------------------------------
 
     function getSmokeEffect(object) {
 
@@ -999,9 +999,9 @@ function startGame() {
         return laserEffect;
     }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// RENDER
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // RENDER
+    // ---------------------------------------------------------------------------------------------------------------------
 
     /**
      * Passt die Größe des Canvas an die Displaygröße an
@@ -1039,12 +1039,12 @@ function startGame() {
         requestAnimationFrame(draw);
     }
 
-// die draw() wird kontinuierlich wieder aufgerufen und die Animation läuft in einer Schleife:
+    // die draw() wird kontinuierlich wieder aufgerufen und die Animation läuft in einer Schleife:
     requestAnimationFrame(draw);
 
-// ---------------------------------------------------------------------------------------------------------------------
-// GUI CONTROLLER
-// ---------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------
+    // GUI CONTROLLER
+    // ---------------------------------------------------------------------------------------------------------------------
 
     const gui = new dat.GUI();
     const spaceshipFolder = gui.addFolder('Spaceship');

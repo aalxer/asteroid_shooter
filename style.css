@@ -69,7 +69,11 @@ html, body {
     margin-right: 5px;
 }
 
-.settingIcon {
+.statebarRightContainer {
+    margin-left: auto;
+}
+
+.statebarRightContainer img {
     cursor: pointer;
 }
 

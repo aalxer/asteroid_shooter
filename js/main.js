@@ -1075,12 +1075,15 @@ gui.domElement.style.display = 'none';
 gui.domElement.style.marginTop = '35px';
 
 /**
- * blendet die Controlls im Display ein bzw aus
+ * blendet die Controlpanel im Display ein bzw aus
  */
 function toggleControlpanel() {
     gui.domElement.style.display = gui.domElement.style.display === 'none' ? 'block' : 'none';
 }
 
+/**
+ * Pausiert das Spiel, wenn es läuft sonst wird fortgesetzt
+ */
 function togglePauseGame() {
     isPaused = !isPaused;
     spaceshipControlsEnabled = !spaceshipControlsEnabled;

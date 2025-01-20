@@ -831,7 +831,7 @@ function startGame() {
         setInterval(() => {
             if (isPaused) return
             createEnemyObject();
-        }, 3500);
+        }, 2800);
     }
 
     /**
@@ -842,7 +842,7 @@ function startGame() {
         setInterval(() => {
             if (isPaused) return
             createMissilesObject();
-        }, Math.random() * 1000 + 14000);
+        }, Math.random() * 500 + 8000);
     }
 
     startAnimateBackground();

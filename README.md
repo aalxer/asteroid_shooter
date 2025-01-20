@@ -24,11 +24,17 @@ Die angepassten Zeilen in dem jeweiligen Script sind zwischen folgenden Zeilen z
 // code  
 // ----------------------------------------------------------------------------------  
 ```
-*ursprünglicher Code für die Module: [Github - Simple Particle Effects](https://github.com/bobbyroe/Simple-Particle-Effects)*  
-*Tutorial für dieses Modul: [Youtube - Simple Particle Effects](https://www.youtube.com/watch?v=h1UQdbuF204&t=295s)*
+ursprünglicher Code für die Module: [Github - Simple Particle Effects](https://github.com/bobbyroe/Simple-Particle-Effects)  
+Tutorial für dieses Modul: [Youtube - Simple Particle Effects](https://www.youtube.com/watch?v=h1UQdbuF204&t=295s)  
 
+## Verwendete Artikels
+Die Kollisionsprüfung wurde durch diesen Artikel gelernt und im Spiel umgesetzt:  
+[Exploring Collision Detection in Three.js](https://jainmanshu.medium.com/exploring-collision-detection-in-three-js-82dc95a383f4) 
+
+Das Verstehen und umsetzten von Lighting und den unterschiedlichen Lichttypen in Three.js war mithilfe dieser zwei Videos:  
+[Three.js Lighting Tutorial with Examples](https://www.youtube.com/watch?v=bsLosbweLNE&t=158s)  
+[Three.js Lighting Tutorial (JavaScript) | Light Types Explained!](https://www.youtube.com/watch?v=T6PhV4Hz0u4&t=308s)
 
 ## Assets im Projekt
-Die 3D-Objekte im Spiel werden als .obj-Dateien mit zugehörigen .mtl-Dateien und Textures für das Design des Objekts geladen. Diese Modelle stammen aus der folgenden Quelle:  
-  
-*[CG-Trader](https://www.cgtrader.com)*
+Die 3D-Objekte im Spiel werden als .obj-Dateien mit zugehörigen .mtl-Dateien und Textures für das Design des Objekts geladen. Diese Objekte sind aus der folgenden Quelle:
+[CG-Trader](https://www.cgtrader.com)
